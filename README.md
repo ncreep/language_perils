@@ -1,4 +1,4 @@
 Language Perils
 ===============
 
-An exploration of programming languages
+An exploration of programming languages.
