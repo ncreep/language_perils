@@ -1,4 +1,4 @@
-language_perils
+Language Perils
 ===============
 
 An exploration of programming languages
