@@ -11,9 +11,12 @@ The above should be read out loud accompanied by a Jazz trio, or maybe you can e
 
 Anyways, this is actual Joy source code, taken from the [Mathematical foundations of Joy](http://www.kevinalbrecht.com/code/joy-mirror/j02maf.html) article. No, really, you're not squinting hard enough, there is some actual math there. 
 
-Well, this is my first language from the [Perlis Languages](http://blog.fogus.me/2011/08/14/perlis-languages/) list.  It's a concatenative language, colloquially known as a stack based language (not sure what sort of person goes all colloquial about anything concatenative, probably the sort of person that uses the word "colloquial"). Stack based languages tend to have very little in the sense of syntax, one may even call them "Lisp without the parentheses". So that makes Joy a good candidate to be the first language for this little project, it's rather simple and self contained.  You can pretty much get all the material you might need to tackle Joy from the (mirror of) the [official site](http://www.kevinalbrecht.com/code/joy-mirror/joy.html). Other than that, as recommended by Fogus, there's a really nice ["The Joy of Concatenative Languages" ](http://www.codecommit.com/blog/category/cat) series by [Daniel Spiewak](http://www.codecommit.com), although his language of choice is Cat, it is still, as usual for Daniel's writings, a very instructive and fun read.
+Well, this is my first language from the [Perlis Languages](http://blog.fogus.me/2011/08/14/perlis-languages/) list.  It's a concatenative language, colloquially known as a stack based language (not sure what sort of person goes all colloquial about anything concatenative, probably the sort of person that uses the word "colloquial"). Stack based languages tend to have very little in the sense of syntax, one may even call them "Lisp without the parentheses". So that makes Joy a good candidate to be the first language for this little project, it's rather simple and self contained.  You can pretty much get all the material you might need to tackle Joy from the (mirror of) the [official site](http://www.kevinalbrecht.com/code/joy-mirror/joy.html). Other than that, as recommended by Fogus, there's the really nice ["The Joy of Concatenative Languages" ](http://www.codecommit.com/blog/category/cat) series by [Daniel Spiewak](http://www.codecommit.com), although his language of choice is Cat, it is still, as usual for Daniel's writings, a very instructive and fun read.
 
-Let's take a quick tour of Joy, though for a proper introduction you should consult the [official one](http://www.kevinalbrecht.com/code/joy-mirror/j01tut.html).  
+Let's take a quick tour of Joy, though for a proper introduction you should consult the [official one](http://www.kevinalbrecht.com/code/joy-mirror/j01tut.html). 
+ 
+<!-- more -->
+ 
 To the eyes of a conventional programmer, the first thing that stands out in a stack based language is the Reverse Polish notation. 
 ```
 3 4 + 5 *
@@ -82,9 +85,9 @@ The last type of combinators we'll look at are recursive combinators. These allo
 [null]  [succ]  [dup pred]  [*]  linrec
 ```
 
-The first quote is the `if` part, it checks for the base case, here, whether the current argument is 0. The second quote is the `then` part, which is executed when we reach the base case, here, when we reach 0, we take its successor, 1, and leave it on the stack. The last two quotes are the `else1` and `else2` parts. The first is executed before we take the recursive step, in here we duplicate the argument and take the predecessor of the copy. The second quote is executed after the recursion step, in this case we multiply the top two items on the stack. To sum up, we are recursively filling up the stack with the numbers from the given argument down to 1, then, when we back up we are multiplying them in pairs leaving the result on top all the time, until we reach back up to the original value. The last multiplication step gives us the value of the factorial at the top of the stack.
+The first quote is the `if` part, it checks for the base case, here, whether the current argument is 0. The second quote is the `then` part, which is executed when we reach the base case, here, when we reach 0, we take its successor, 1, and leave it on the stack. The last two quotes are the `else1` and `else2` parts. The first is executed before we take the recursive step, in here we duplicate the argument and take the predecessor of the copy. The second quote is executed after the recursion step, in this case we multiply the top two items on the stack. To sum up, we are recursively filling up the stack with the numbers from the given argument down to 1, then, when we back up we are multiplying them in pairs leaving the result on top all the time, until we reach the original value. The last multiplication step gives us the value of the factorial at the top of the stack.
 
-I found combinators to be my biggest stumbling block on the path to readability, when looking at a new combinator, you really haven't a chance of figuring out its purpose unless its name is very obvious or you have its documentation at hand. Take this for example
+I found combinators to be my biggest stumbling block on the path to readability, when looking at a new combinator, you really haven't a chance of figuring out its purpose unless its name is very obvious or you have its documentation at hand. Take this for example:
 ```
 [1]  [*]  primrec
 ```
@@ -104,9 +107,9 @@ And use it like so:
 4 square # => 16
 5 factorial # => 120
 ```
-There are also some modularization/information hiding facilities built in, but I won't be using them here, so I'll skip them.
+There are also some modularization/information hiding facilities built in, but I won't be using them here, so moving right along.
 
-That sums up my not so brief but definitely incomplete introduction to Joy. The most glaring thing I glossed over are the mathematical foundations of Joy. It so happens that Joy is a function level programming language, in the sense that there no values in the language, just functions. No, `42` is not a value, `42` is a function that takes a stack and returns a new stack with the value `42` on top. So without noticing it, all along we've been composing functions and not just that, but we've been using point-free style while at it.  
+This sums up my not so brief but definitely incomplete introduction to Joy. The most glaring thing I glossed over are the mathematical foundations of Joy. It so happens that Joy is a function level programming language, in the sense that there are no values in the language, just functions. No, `42` is not a value, `42` is a function that takes a stack and returns a new stack with the value `42` on top. So without noticing it, all along we've been composing functions and not just that, but we've been using point-free style while at it.  
 Although I didn't delve deep into the maths myself, its presence definitely makes me feel better, I like it when a language is well thought through, such elegance can only come from math.
 
 All together now:  

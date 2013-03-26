@@ -20,6 +20,8 @@ It starts off with a quote by Alan Perlis:
 Next, Fogus goes on to explain how one can and should expand one's views on software development, namely, by learning "Perlis Languages":
 > A Perlis Language is a programming language that I believe will shake one's views on software development to the core.
 
+<!-- more -->
+
 This is followed by a list of (mostly esoteric) programming languages, with their short descriptions, code samples and links to further information. (You really should read the full post, though.)
 
 
