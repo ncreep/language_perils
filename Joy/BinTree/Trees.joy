@@ -1,0 +1,122 @@
+(* 
+A binary tree where each node is a list [value left right], where all items are optional. 
+The tree is immutable, so all mutating operations create a new modified copy of the tree.
+Possible usage: 
+	"Trees.joy" include.
+	# clearing stack 
+	[] unstack.
+	# filling with values and printing in order
+	new-tree [4 8 6 1 3 6 4 3 4 9] add-all in-order.
+	# filling with random values and printing in order
+	new-tree 20 make-rands add-all in-order.
+	# filling with values and deleting a single value
+	new-tree [4 8 6 1 3 6 4 3 4 9] add-all 3 delete-val.
+	# filling with values and checking whether the trees contans a specific value
+	new-tree [4 8 6 1 3 6 4 3 4 9] add-all 3 tree-contains.
+*)
+DEFINE 
+	# creates a new empty tree
+	new-tree == [];
+	# checks whether a tree is empty: tree -> boolean
+	empty-tree == null;
+		
+	# inserts an item at a given position, deleting the previous item: list val index -> list
+	insert-at == 
+		swapd dupd dup swapd
+		take rollup
+		1 + drop
+		enconcat;
+		
+	(*	Possible alternative, is it more readable?
+	insert-at == 
+		swapd 
+		[take] nullary rollup
+		1 + drop
+		enconcat;
+	*)
+
+	(* getters and setters for a tree node *)
+	
+	value == 0 at;
+	left-tree == 1 at;
+	right-tree == 2 at;
+	
+	insert-value == 0 insert-at;
+	insert-left == 1 insert-at;
+	insert-right == 2 insert-at;
+	
+	# predicates for tree nodes: tree -> boolean
+	has-left == left-tree empty-tree not;
+	has-right == right-tree empty-tree not;
+	no-child == 
+		dup has-left not swap 
+		has-right not and;
+	two-child == dup has-left swap has-right and;
+	single-child == dup no-child not swap two-child not and;
+	
+	# getting the only child of a tree: tree -> val
+	get-child == [has-left] [left-tree] [right-tree] ifte;
+
+	# creates a function that finds a value in the tree and rebuilds it according to a pair of actions: tree value [empty val] -> tree
+	# where empty and val are functions of the form: value tree -> tree
+	build-tree-with-value == rollup swap [
+		# invoking the handler function for the empty case
+		[ [empty-tree] [rolldown dup 0 at rollupd i] ]
+		# invoking the handler function for the found value case
+		[ [value =] [rolldown dup 1 at rollupd i] ]
+		[ [value <] [dup left-tree rollupd] [swapd insert-left] ]
+		[ [dup right-tree rollupd] [swapd insert-right] ]
+	] condlinrec popd;
+
+
+	# adding a value on top of the stack to the tree beneath it: tree val -> tree
+	add-tree == [[pop [[] []] cons] [popd]] build-tree-with-value;
+		
+	# adding a list into a tree: tree list -> tree
+	add-all == swap [add-tree] fold;
+	
+	# delete a value from the tree: tree val -> tree
+	delete-val == [[popd] [popd delete-tree]] build-tree-with-value;
+	
+	# deleting a list of values from a tree: tree list -> tree
+	delete-all == swap [delete-val] fold;
+		
+	# deletes a value of a tree, replacing it with a proper value from a subtree: tree -> tree
+	delete-tree == [
+			[[no-child] pop new-tree]
+			[[single-child] get-child]
+			[delete-succ insert-value]
+		] cond;
+	
+	# deletes the in order successor leaving its value on the top of the stack, 
+	# the tree assumed to have a right subtree: tree -> tree value
+	delete-succ == dup right-tree 
+		[has-left not]
+		[dup [value] dip delete-tree]
+		[dup left-tree]
+		[swapd insert-left]
+		linrec
+		swap [insert-right] dip;
+
+	# checks whether a tree contains a given value: tree val -> boolean
+	tree-contains == swap [
+			[ [empty-tree] [false] ]
+			[ [value =] [true] ]
+			[ [value <] [left-tree] [] ]
+			[ [right-tree] [] ]
+		] condlinrec 
+		# clearing stack
+		popd popd;
+
+	# returns the size of the tree: tree -> int
+	tree-size == 0 swap [pop succ] treestep;
+
+	# converts a tree into an in-order list: tree -> list
+	in-order == [empty-tree] [] 
+	   [dup [value] dip 
+		dup [left-tree] dip 
+		right-tree] [enconcat] binrec;
+	
+	# creates a random list of numbers of a given size: int -> list
+	make-rands == [] swap [rand swons] times;
+.
