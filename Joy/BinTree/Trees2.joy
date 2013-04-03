@@ -11,7 +11,7 @@ Possible usage:
 	new-tree 20 make-rands add-all in-order.
 	# filling with values and deleting a single value
 	new-tree [4 8 6 1 3 6 4 3 4 9] add-all 3 delete-val.
-	# filling with values and checking whether the trees contans a specific value
+	# filling with values and checking whether the tree contains a specific value
 	new-tree [4 8 6 1 3 6 4 3 4 9] add-all 3 tree-contains.
 *)
 DEFINE 
