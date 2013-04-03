@@ -70,10 +70,10 @@ DEFINE
 
 
 	# adding a value on top of the stack to the tree beneath it: tree val -> tree
-	add-tree == [[pop [[] []] cons] [popd]] build-tree-with-value;
+	add-val == [[pop [[] []] cons] [popd]] build-tree-with-value;
 		
 	# adding a list into a tree: tree list -> tree
-	add-all == swap [add-tree] fold;
+	add-all == swap [add-val] fold;
 	
 	# delete a value from the tree: tree val -> tree
 	delete-val == [[popd] [popd delete-tree]] build-tree-with-value;
