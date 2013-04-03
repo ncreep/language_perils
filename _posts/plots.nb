@@ -1,0 +1,192 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[      7079,        183]
+NotebookOptionsPosition[      6760,        167]
+NotebookOutlinePosition[      7105,        182]
+CellTagsIndexPosition[      7062,        179]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ RowBox[{"TreePlot", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"8", "\[Rule]", "2"}], ",", " ", 
+     RowBox[{"8", "\[Rule]", "10"}], ",", " ", 
+     RowBox[{"2", "\[Rule]", " ", "1"}], ",", 
+     RowBox[{"2", " ", "\[Rule]", " ", "5"}], ",", " ", 
+     RowBox[{"10", " ", "\[Rule]", " ", "12"}]}], "}"}], ",", "Automatic", 
+   ",", " ", "8", ",", " ", 
+   RowBox[{"VertexLabeling", "\[Rule]", "True"}], ",", " ", 
+   RowBox[{"DirectedEdges", "\[Rule]", "True"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"VertexCoordinateRules", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"8", "\[Rule]", " ", "Automatic"}], ",", 
+        RowBox[{"2", "\[Rule]", " ", "Automatic"}], ",", 
+        RowBox[{"1", "\[Rule]", " ", "Automatic"}], ",", 
+        RowBox[{"5", "\[Rule]", " ", "Automatic"}], ",", 
+        RowBox[{"10", "\[Rule]", " ", "Automatic"}], ",", 
+        RowBox[{"9", "\[Rule]", " ", "Automatic"}]}], "}"}]}], ","}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"VertexCoordinateRules", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"8", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"5", ",", "5"}], "}"}]}], ",", 
+      RowBox[{"2", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"4", ",", "4"}], "}"}]}], ",", 
+      RowBox[{"10", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"6", ",", "4"}], "}"}]}], ",", 
+      RowBox[{"12", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"7", ",", "3"}], "}"}]}], ",", 
+      RowBox[{"5", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"5", ",", "3"}], "}"}]}], ",", 
+      RowBox[{"1", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"3", ",", "3"}], "}"}]}]}], "}"}]}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"VertexRenderingFunction", "\[Rule]", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"White", ",", 
+        RowBox[{"EdgeForm", "[", 
+         RowBox[{"{", 
+          RowBox[{"Black", ",", " ", "Thick"}], "}"}], "]"}], ",", 
+        RowBox[{"Disk", "[", 
+         RowBox[{"#1", ",", ".3"}], "]"}], ",", "Black", ",", 
+        RowBox[{"Text", "[", 
+         RowBox[{
+          RowBox[{"Style", "[", 
+           RowBox[{"#2", ",", " ", "20"}], "]"}], ",", 
+          RowBox[{"#1", " ", "+", " ", 
+           RowBox[{"{", 
+            RowBox[{"0.02", ",", 
+             RowBox[{"-", "0.02"}]}], "}"}]}]}], "]"}]}], "}"}], "&"}], 
+     ")"}]}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.5739554808392286`*^9, 3.5739554824642305`*^9}, 
+   3.573955593489395*^9, {3.5739556906505404`*^9, 3.5739557002255535`*^9}, {
+   3.57395575702464*^9, 3.5739557720346613`*^9}, {3.5739560079400806`*^9, 
+   3.5739561392573056`*^9}, {3.573956309335591*^9, 3.57395632451962*^9}, {
+   3.573956701049384*^9, 3.5739567870575175`*^9}, {3.5739568172425833`*^9, 
+   3.573956848250721*^9}, {3.573956886298806*^9, 3.573956897417824*^9}, {
+   3.573957023300109*^9, 3.573957028747118*^9}, {3.5739574084336944`*^9, 
+   3.573957421570718*^9}, {3.5739575289969015`*^9, 3.5739575329219065`*^9}, {
+   3.573957565655964*^9, 3.5739575693259687`*^9}, {3.573958997010542*^9, 
+   3.573959005930554*^9}, {3.573959058728637*^9, 3.573959075538661*^9}, {
+   3.5739591902428865`*^9, 3.5739592389869623`*^9}, {3.573959306546068*^9, 
+   3.5739593247880945`*^9}, {3.5739594206372414`*^9, 3.573959511152384*^9}, {
+   3.573959571437468*^9, 3.5739595960025024`*^9}, {3.5739596648216047`*^9, 
+   3.5739597554427443`*^9}, {3.5739597931947985`*^9, 3.573959802059811*^9}, {
+   3.5739598382098618`*^9, 3.5739599467300467`*^9}, {3.573959991138116*^9, 
+   3.573960020875159*^9}, {3.573960151673423*^9, 3.5739601528734245`*^9}, {
+   3.573969760420224*^9, 3.5739698073652997`*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[
+  TagBox[GraphicsGroupBox[{
+     GraphicsComplexBox[{{5., 5.}, {4., 4.}, {6., 4.}, {3., 3.}, {5., 3.}, {
+      7., 3.}}, 
+      {RGBColor[0.5, 0., 0.], Arrowheads[{{0.02554714064914992, 0.7}}], 
+       ArrowBox[{1, 2}], ArrowBox[{1, 3}], ArrowBox[{2, 4}], ArrowBox[{2, 5}],
+        ArrowBox[{3, 6}]}], {
+      {GrayLevel[1], EdgeForm[{GrayLevel[0], Thickness[Large]}], 
+       DiskBox[{5., 5.}, 0.3], 
+       {GrayLevel[0], InsetBox[
+         StyleBox["8",
+          StripOnInput->False,
+          FontSize->20], {5.02, 4.98}]}}, 
+      {GrayLevel[1], EdgeForm[{GrayLevel[0], Thickness[Large]}], 
+       DiskBox[{4., 4.}, 0.3], 
+       {GrayLevel[0], InsetBox[
+         StyleBox["2",
+          StripOnInput->False,
+          FontSize->20], {4.02, 3.98}]}}, 
+      {GrayLevel[1], EdgeForm[{GrayLevel[0], Thickness[Large]}], 
+       DiskBox[{6., 4.}, 0.3], 
+       {GrayLevel[0], InsetBox[
+         StyleBox["10",
+          StripOnInput->False,
+          FontSize->20], {6.02, 3.98}]}}, 
+      {GrayLevel[1], EdgeForm[{GrayLevel[0], Thickness[Large]}], 
+       DiskBox[{3., 3.}, 0.3], 
+       {GrayLevel[0], InsetBox[
+         StyleBox["1",
+          StripOnInput->False,
+          FontSize->20], {3.02, 2.98}]}}, 
+      {GrayLevel[1], EdgeForm[{GrayLevel[0], Thickness[Large]}], 
+       DiskBox[{5., 3.}, 0.3], 
+       {GrayLevel[0], InsetBox[
+         StyleBox["5",
+          StripOnInput->False,
+          FontSize->20], {5.02, 2.98}]}}, 
+      {GrayLevel[1], EdgeForm[{GrayLevel[0], Thickness[Large]}], 
+       DiskBox[{7., 3.}, 0.3], 
+       {GrayLevel[0], InsetBox[
+         StyleBox["12",
+          StripOnInput->False,
+          FontSize->20], {7.02, 2.98}]}}}},
+    ContentSelectable->True],
+   Annotation[#, 
+    VertexCoordinateRules -> {{5., 5.}, {4., 4.}, {6., 4.}, {3., 3.}, {5., 
+     3.}, {7., 3.}}]& ],
+  AspectRatio->0.7071067811865476,
+  FrameTicks->None,
+  ImageSize->{384.28932188134536`, Automatic},
+  PlotRange->All,
+  PlotRangePadding->Scaled[0.1]]], "Output",
+ CellChangeTimes->{{3.5739593159730825`*^9, 3.573959325668096*^9}, {
+   3.5739594213022423`*^9, 3.573959473878326*^9}, 3.573959511462384*^9, 
+   3.573959596277503*^9, {3.5739596892836404`*^9, 3.573959755762745*^9}, {
+   3.5739597951148014`*^9, 3.573959802329811*^9}, {3.573959840928867*^9, 
+   3.5739599470450473`*^9}, {3.573959991418116*^9, 3.573960021100159*^9}, 
+   3.5739601531684246`*^9, {3.5739697690502367`*^9, 3.5739698077053003`*^9}}]
+}, Open  ]]
+},
+WindowSize->{707, 827},
+WindowMargins->{{89, Automatic}, {Automatic, 16}},
+FrontEndVersion->"9.0 for Microsoft Windows (64-bit) (November 20, 2012)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 3708, 82, 212, "Input"],
+Cell[4290, 106, 2454, 58, 319, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
