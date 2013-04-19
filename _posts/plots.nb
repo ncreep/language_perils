@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[      7079,        183]
-NotebookOptionsPosition[      6760,        167]
-NotebookOutlinePosition[      7105,        182]
-CellTagsIndexPosition[      7062,        179]
+NotebookDataLength[      7463,        192]
+NotebookOptionsPosition[      7097,        175]
+NotebookOutlinePosition[      7442,        190]
+CellTagsIndexPosition[      7399,        187]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -32,7 +32,11 @@ Cell[BoxData[
      RowBox[{"10", " ", "\[Rule]", " ", "12"}]}], "}"}], ",", "Automatic", 
    ",", " ", "8", ",", " ", 
    RowBox[{"VertexLabeling", "\[Rule]", "True"}], ",", " ", 
-   RowBox[{"DirectedEdges", "\[Rule]", "True"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"DirectedEdges", "\[Rule]", "True"}], ",", " ", 
+   RowBox[{"AspectRatio", "\[Rule]", 
+    RowBox[{"1", "/", "1.8"}]}], ",", 
+   RowBox[{"PlotRangePadding", " ", "\[Rule]", " ", "None"}], ",", 
+   "\[IndentingNewLine]", 
    RowBox[{"(*", 
     RowBox[{
      RowBox[{"VertexCoordinateRules", "\[Rule]", 
@@ -102,7 +106,7 @@ Cell[BoxData[
    3.5739597554427443`*^9}, {3.5739597931947985`*^9, 3.573959802059811*^9}, {
    3.5739598382098618`*^9, 3.5739599467300467`*^9}, {3.573959991138116*^9, 
    3.573960020875159*^9}, {3.573960151673423*^9, 3.5739601528734245`*^9}, {
-   3.573969760420224*^9, 3.5739698073652997`*^9}}],
+   3.573969760420224*^9, 3.5739698073652997`*^9}, 3.575321399060275*^9}],
 
 Cell[BoxData[
  GraphicsBox[
@@ -152,18 +156,22 @@ Cell[BoxData[
    Annotation[#, 
     VertexCoordinateRules -> {{5., 5.}, {4., 4.}, {6., 4.}, {3., 3.}, {5., 
      3.}, {7., 3.}}]& ],
-  AspectRatio->0.7071067811865476,
+  AspectRatio->0.5555555555555556,
   FrameTicks->None,
   ImageSize->{384.28932188134536`, Automatic},
   PlotRange->All,
-  PlotRangePadding->Scaled[0.1]]], "Output",
+  PlotRangePadding->None]], "Output",
  CellChangeTimes->{{3.5739593159730825`*^9, 3.573959325668096*^9}, {
    3.5739594213022423`*^9, 3.573959473878326*^9}, 3.573959511462384*^9, 
    3.573959596277503*^9, {3.5739596892836404`*^9, 3.573959755762745*^9}, {
    3.5739597951148014`*^9, 3.573959802329811*^9}, {3.573959840928867*^9, 
    3.5739599470450473`*^9}, {3.573959991418116*^9, 3.573960021100159*^9}, 
-   3.5739601531684246`*^9, {3.5739697690502367`*^9, 3.5739698077053003`*^9}}]
-}, Open  ]]
+   3.5739601531684246`*^9, {3.5739697690502367`*^9, 3.5739698077053003`*^9}, 
+   3.57532025468182*^9, 3.5753204739893637`*^9, 3.575321400655366*^9}]
+}, Open  ]],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.5753206379617424`*^9, 3.575320637998745*^9}}]
 },
 WindowSize->{707, 827},
 WindowMargins->{{89, Automatic}, {Automatic, 16}},
@@ -182,9 +190,10 @@ CellTagsIndex->{}
 (*NotebookFileOutline
 Notebook[{
 Cell[CellGroupData[{
-Cell[579, 22, 3708, 82, 212, "Input"],
-Cell[4290, 106, 2454, 58, 319, "Output"]
-}, Open  ]]
+Cell[579, 22, 3884, 86, 232, "Input"],
+Cell[4466, 110, 2518, 59, 262, "Output"]
+}, Open  ]],
+Cell[6999, 172, 94, 1, 31, InheritFromParent]
 }
 ]
 *)
