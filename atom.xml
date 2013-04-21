@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Language Perils]]></title>
+  <link href="http://ncreep.github.com/language_perils/atom.xml" rel="self"/>
+  <link href="http://ncreep.github.com/language_perils/"/>
+  <updated>2013-04-21T18:51:36+03:00</updated>
+  <id>http://ncreep.github.com/language_perils/</id>
+  <author>
+    <name><![CDATA[Daniel Beskin]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Joyous Tree Friends]]></title>
+    <link href="http://ncreep.github.com/language_perils/blog/2013-04-21-joyous-tree-friends.html"/>
+    <updated>2013-04-21T18:15:00+03:00</updated>
+    <id>http://ncreep.github.com/language_perils/blog/joyous-tree-friends</id>
+    <content type="html"><![CDATA[<p>Having introduced Joy in the <a href="http://ncreep.github.com/language_perils/blog/2013-03-18-the-joy-of-joy.html">previous post</a>, as per our <a href="http://ncreep.github.com/language_perils/blog/2013-03-18-introduction.html">grand scheme of things</a>, we are now ready for some coding.</p>
+
+<p>As a first small project, I decided to try and implement a simple <a href="http://en.wikipedia.org/wiki/Binary_search_tree">binary search tree</a>. Nothing fancy, no self-balancing or anything <a href="http://j.rigelseven.com/read/67201/">evil like that</a>. Just your Plain Old Binary Search Tree (which can be handily abbreviated as POBST).</p>
+
+<p>The reason for this boring textbook example is twofold. First, Joy being, for me, a rather new way of thinking about code, I didn&#8217;t want to distract myself with something overly creative. Having a ready recipe for the thing I want to code provides me with a nice distraction-free, Joyful coding experience. Second, as Joy stresses function-level programming (no values and all that), I was wondering how a data structure, which I think of as a value, would look like in this paradigm.</p>
+
+<!-- more -->
+
+
+<p>(Source code for this post is in the <a href="https://github.com/ncreep/language_perils/blob/master/Joy/BinTree/Trees.joy">repository</a>).</p>
+
+<p>First thing first, we need to have some representation of our tree. Now, we are quite far from our cozy OO land, mind you; we don&#8217;t even have simple structs in Joy. So this is your typical &#8220;we&#8217;re not in Kansas anymore&#8221; situation.<br/>
+The omnipresent lists to the rescue. As we remember (or not), lists in Joy are heterogeneous, so we can stuff anything in them, including other lists, which fits well with the recursive nature of trees.</p>
+
+<p>So for our tree, we&#8217;ll use a list with three elements - the first is the value, the second is the left subtree, and the third is the right subtree. All parts are optional. A couple of examples:</p>
+
+<p>An empty tree</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A tree with a single node</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[8 [] []]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And this tree</p>
+
+<p><img class="center" src="http://ncreep.github.com/language_perils/images/joy/simple_tree.png"></p>
+
+<p>is</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[8 [2 [1 [] []] [5 [] []]] [10 [] [12 [] []]]]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Untangled all the brackets? Great, we can move on.</p>
+
+<p>In view of how simple the tree representation is, the second reason for implementing binary trees kind of evaporates, oh well&#8230;</p>
+
+<p>The <a href="https://github.com/ncreep/language_perils/blob/master/Joy/BinTree/Trees.joy">full source code</a> should be documented enough to be, in most parts, fairly readable; so I won&#8217;t be explaining it step by step here. The final result is rather boring, e.g., we can create and query a tree like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>new-tree [4 8 6 1 3 6 4 3 4 9] add-all 3 tree-contains # =&gt; true</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(Note that, due to what I think is a bug in the interpreter, when adding a large number of items at a time, say 100, sometimes the interpreter either crashes or gives unexpected errors.)</p>
+
+<p>No surprises here. But there are some interesting implementation details that are actually worth a discussion; we are getting to them below.</p>
+
+<p>Having implemented getters (in a moment, we&#8217;ll see <code>value</code>, which extracts the value of a tree node), setters (as our trees are immutable, setters, or any mutating operations, actually produce new trees) and some predicates for the tree parts, I am getting to the interesting bits: adding and removing elements from the tree.</p>
+
+<p>Adding an item to the tree is a simple recursive operation: traverse the tree till you find the right place, insert a new node with the value there. In case the item is already present, do nothing. Joy being Joy, we have a combinator that makes this possible without writing an explicitly recursive function. In this case, we use <code>condlinrec</code> (see <a href="http://www.kevinalbrecht.com/code/joy-mirror/html-manual.html">manual</a>), which performs linear recursion, but unlike <code>linrec</code> it can check for multiple conditions before the recursion step or stopping.</p>
+
+<p>A skeleton for the adding function looks like something like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>add-val == [
+</span><span class='line'>    [ [empty-tree] [create-new-tree-with-the-value] ]
+</span><span class='line'>    [ [value =] [do-nothing] ]
+</span><span class='line'>    
+</span><span class='line'>    [ [value &lt;] [set-left-tree-for-recursion] [insert-new-left-tree] ]
+</span><span class='line'>    [ [set-right-tree-for-recursion] [insert-new-right-tree] ]
+</span><span class='line'>] condlinrec</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&#8217;s not that difficult to fill in the pseudocode bits, but we won&#8217;t be doing that; instead, let&#8217;s see what the deleting function should look like. In pseudocode:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>delete-val == [
+</span><span class='line'>    [ [empty-tree] [do-nothing] ]
+</span><span class='line'>    [ [value =] [create-a-new-tree-without-the-value] ]
+</span><span class='line'>    
+</span><span class='line'>    [ [value &lt;] [set-left-tree-for-recursion] [insert-new-left-tree] ]
+</span><span class='line'>    [ [set-right-tree-for-recursion] [insert-new-right-tree] ]
+</span><span class='line'>] condlinrec</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hmm, rather similar, in both cases we are rebuilding the tree according to some value; the differences occur when we actually get to the value or when it&#8217;s missing. Being conscientious programmers, we cannot let this code duplication be. The code must be WET (which is like DRY, but more suitable for trees), and we must find a way to hydrate it.</p>
+
+<p>Simple enough, this is a functional language; we can pass the appropriate handler functions as parameters and let them take care of the differences, while keeping common code intact:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>build-tree-with-value == [
+</span><span class='line'>    [ [empty-tree] [empty-handler] ]
+</span><span class='line'>    [ [value =] [value-handler] ]
+</span><span class='line'>    
+</span><span class='line'>    [ [value &lt;] [set-left-tree-for-recursion] [insert-new-left-tree] ]
+</span><span class='line'>    [ [set-right-tree-for-recursion] [insert-new-right-tree] ]
+</span><span class='line'>] condlinrec
+</span><span class='line'>
+</span><span class='line'>add-val == [[do-nothing] [create-new-tree-with-the-value]] build-tree-with-value
+</span><span class='line'>delete-val == [[create-a-new-tree-without-the-value] [do-nothing]] build-tree-with-value</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Great, we got ourselves WET with Joy, done; we can now move on to greener pastures.<br/>
+Well, of course not, that was just pseudocode, we actually need an implementation for this thing. And here it is:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>build-tree-with-value == rollup swap [
+</span><span class='line'>  [ [empty-tree] [rolldown dup 0 at rollupd i] ]
+</span><span class='line'>  [ [value =] [rolldown dup 1 at rollupd i] ]
+</span><span class='line'>      
+</span><span class='line'>  [ [value &lt;] [dup left-tree rollupd] [swapd insert-left] ]
+</span><span class='line'>  [ [dup right-tree rollupd] [swapd insert-right] ]
+</span><span class='line'>] condlinrec popd
+</span><span class='line'>
+</span><span class='line'>add-val == [[pop [[] []] cons] [popd]] build-tree-with-value;
+</span><span class='line'>delete-val == [[popd] [popd delete-tree]] build-tree-with-value</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Bugger me - I can&#8217;t quite read this, and I wrote that not that long ago.<br/>
+So why is it so complicated? In the pseudocode above, I elided any references to argument handling; I just assumed the arguments to be there when needed. That&#8217;s quite natural for someone coming from a background of <a href="http://en.wikipedia.org/wiki/Value-level_programming">value-level</a> programming languages. When you write a function, e.g., in Java, arguments to functions are just there, available, without any fuss, by their name. Not so when you&#8217;re dealing with a stack-based language; here, the arguments are implied to be on the stack, and they have no names. To be able to use them, you have to make sure that they are properly ordered on the top of the stack.</p>
+
+<p>Back to our code. First, we have the easy bits; <code>add-val</code> and <code>delete-val</code> are actually quite similar to our pseudocode. They assume that a tree and a value to be added/removed are on top of the stack, each of them pushes their pair of handling functions onto the top of the stack, and passes control to <code>build-tree-with-value</code>.<br/>
+The handler functions are rather simple; to figure them out, we need to remember that when we apply them we have the tree on the top of the stack and the value below it. After the application, we need to leave only the new tree and nothing else. I&#8217;ll leave the figuring out as an exercise to the reader (oh how I hate when people do that. At last, the oh so sweet revenge&#8230;).</p>
+
+<p>Now, <code>build-tree-with-value</code> creates a function that takes three arguments: a tree, a value, and a list with a pair of handler functions; in that order, i.e. the handler functions are on the top of the stack. But we don&#8217;t want them that way, what we need is: handlers, value, tree. That&#8217;s what the first <code>rollup swap</code> functions do. After applying them, we are ready for the recursion. And that&#8217;s the last point where I can still explain the code without taking out a piece of paper and drawing many little stacks on it. As you can see, each condition is followed by a bunch of stack-manipulating functions, the whole purpose of which is to tweak the stack so that the arguments are in the right order, multiplicity and are ready for the further recursive calls. A horrid, horrid piece of code.</p>
+
+<p>I would love to give the explanation of this code to you, the reader, as another exercise, but that would be just plain sadistic. And I won&#8217;t be bothered to explain it myself, that would be way too tedious, boring and quite meaningless. Why meaningless? Because by now, I think that it&#8217;s pretty clear that we are doing something wrong. To quote a <a href="http://www.codecommit.com/blog/cat/the-joy-of-concatenative-languages-part-1#comment-4407">comment</a> from the <a href="http://www.codecommit.com/blog/cat/the-joy-of-concatenative-languages-part-1">The Joy of Concatenative Languages</a> series</p>
+
+<blockquote><p>If you find you need to be continually aware of the stack, then, plain and simple, &#8220;You&#8217;re Doing It Wrong.&#8221;</p></blockquote>
+
+<p>We need to step back and see how we can alleviate the stack manipulation problem. To do that, we&#8217;ll examine a simpler case: the <code>insert-at</code> function. This function takes a list, a value and an index, and inserts the value at the specified position in the list. The algorithm we&#8217;ll be implementing is:</p>
+
+<ul>
+<li>take the first N - 1 items from the list (prefix)</li>
+<li>take the tail of list starting from the N + 1th item (tail)</li>
+<li>concatenate the prefix value and tail.</li>
+</ul>
+
+
+<p>Simple enough, especially as we already have the <code>take</code>, <code>drop</code> and <code>enconcat</code> functions implemented for us. And here&#8217;s my first naive attempt at an implementation:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>insert-at == 
+</span><span class='line'>  swapd dupd dup swapd
+</span><span class='line'>  take rollup
+</span><span class='line'>  1 + drop
+</span><span class='line'>  enconcat;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Not the horrors of <code>build-tree-with-value</code>, but still far from satisfactory; we cannot, by any means, plead ignorance of the stack.<br/>
+For the sport of it, let&#8217;s try to follow the definition.</p>
+
+<ul>
+<li>We start out with <code>list val index</code> (the rightmost item is the top of the stack).</li>
+<li>The first line rearranges it, so that we have <code>val list index list index</code>.</li>
+<li>The second line applies the <code>take</code> function to the top two items and pushes the result down the stack, so we have <code>val prefix list index</code>.</li>
+<li>The third line calculates the tail of the list, leaving <code>val prefix tail</code>.</li>
+<li>The last line performs the concatenation of all three items on the stack, and we are done.</li>
+</ul>
+
+
+<p>Now, our aim is to reduce the amount of stack related operations we see at each stage. To do this, I tried looking at the different functions and combinators available in Joy. But being a novice, I couldn&#8217;t find anything simple that makes the code much better. What I managed to figure out is that part of the complexity stems from the fact that in order to reuse an argument, I have to duplicate it on the stack, which requires even more manipulation of the stack. One of the combinators that I found, <code>nullary</code>, allows to use a function without removing its arguments from the stack, so one can avoid the duplication in that case. Here&#8217;s the best that I managed:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>insert-at == 
+</span><span class='line'>  swapd 
+</span><span class='line'>  [take] nullary rollup
+</span><span class='line'>  1 + drop
+</span><span class='line'>  enconcat;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The steps are as follows:</p>
+
+<ul>
+<li><code>list val index</code> -> <code>val list index</code></li>
+<li><code>val list index</code> -> <code>val list index prefix</code> -> <code>val prefix list index</code></li>
+<li><code>val prefix list index</code> -> <code>val prefix tail</code></li>
+<li>Concatenating the last three items.</li>
+</ul>
+
+
+<p>A definite improvement, but I still don&#8217;t see it as a satisfactory result. The second line seems rather cryptic to me. Further investigation in this direction did not yield anything better, so I decided to leave it at that.</p>
+
+<p>If there are any Joy or concatenative gurus reading this, I would love to hear your opinion on how this code can be improved.</p>
+
+<p>After abandoning this direction, I had another idea. I will leave it till the next post in the series. But the upshot of it is that I was able to write the following code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>insert-at == [
+</span><span class='line'>  ~1
+</span><span class='line'>  ~0 ~2 take
+</span><span class='line'>  ~0 ~2 1 + drop
+</span><span class='line'>  enconcat
+</span><span class='line'>] 3 splice-from-stack;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Ignoring the surrounding <code>splice-from-stack</code> call, we&#8217;ve managed to remove all stack related manipulation. The cost, so it seems, is that we introduced something that looks like custom syntax.</p>
+
+<p>To be continued&#8230;</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[The Joy of Joy]]></title>
+    <link href="http://ncreep.github.com/language_perils/blog/2013-03-18-the-joy-of-joy.html"/>
+    <updated>2013-03-18T06:21:00+02:00</updated>
+    <id>http://ncreep.github.com/language_perils/blog/the-joy-of-joy</id>
+    <content type="html"><![CDATA[<p><strong>Intro</strong>: <code>[swap  dip  dup  dip  pop]  dip  dup  dip  pop</code><br/>
+(sing aloud accompanied by a Jazz trio or even <em>a cappella</em>)</p>
+
+<p>Anyways, this is actual Joy source code, taken from the <a href="http://www.kevinalbrecht.com/code/joy-mirror/j02maf.html">Mathematical foundations of Joy</a> article. No, really, you&#8217;re not squinting hard enough, there is some actual math there.</p>
+
+<p>Well, this is my first language from the <a href="http://blog.fogus.me/2011/08/14/perlis-languages/">Perlis Languages</a> list.  It&#8217;s a concatenative language, colloquially known as a stack-based language (not sure what sort of person goes all colloquial about anything concatenative, probably the sort of person that uses the word &#8220;colloquial&#8221;). Stack-based languages tend to have very little in the sense of syntax, one may even call them &#8220;Lisp without the parentheses&#8221;. So that makes Joy a good candidate to be the first language for this little project; it&#8217;s rather simple and self-contained.  You can pretty much get all the material you might need to tackle Joy from the (mirror of) the <a href="http://www.kevinalbrecht.com/code/joy-mirror/joy.html">official site</a>. Other than that, as recommended by Fogus, there&#8217;s the really nice &#8221;<a href="http://www.codecommit.com/blog/category/cat">The Joy of Concatenative Languages</a>&#8221; series by <a href="http://www.codecommit.com">Daniel Spiewak</a>; although his language of choice is Cat, it still is, as usual for Daniel&#8217;s writings, a very instructive and fun read.</p>
+
+<p>Let&#8217;s take a quick tour of Joy, though for a proper introduction you should consult the <a href="http://www.kevinalbrecht.com/code/joy-mirror/j01tut.html">official one</a>.</p>
+
+<!-- more -->
+
+
+<p>To the eyes of a conventional programmer, the first thing that stands out in a stack-based language is the Reverse Polish notation.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>3 4 + 5 *</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(Note that to actually evaluate the snippet in the Joy interpreter, you&#8217;ll need to put a period at the end, as in <code>3 4 + 5 * .</code>, but I&#8217;ll be omitting it here).</p>
+
+<p>The above happens to be 35. And that obviously screams at you with the horrid unnaturalness of the out-of-order operators. Of course, the average programmer, being to some extent a form of a humanoid, expects this to be written infix as in:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>3 + 4 * 5</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Wait, that&#8217;s actually 23. Of course I meant to write:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>(3 + 4) * 5</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now it&#8217;s all natural and pleasing to the eye. And that&#8217;s the last time in the Joy series that you&#8217;ll be seeing anything written infix, get used to it, sorry&#8230;</p>
+
+<p>Actually, there&#8217;s a whole thing based around RPN having no precedence issues; it allows one to compose programs (functions) by just <em>concatenating</em> their sources - no need to worry about any missing parentheses. And that&#8217;s why you call them <em>concatenative</em> languages; the stack is actually an optional implementation detail.<br/>
+Having crossed the RPN chasm, we can continue to some Joy basics.</p>
+
+<p>We&#8217;ve already seen number literals and arithmetic operators. We also have the usual boolean values <code>true</code> and <code>false</code>; string literals are written in double quotes, and characters are prefixed with a single quote. So the following snippet yields <code>true</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"abcd" 1 at 'b equal</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now I&#8217;ll pretend that you know practically nothing about stacks and explain this snippet step by step. Having done that, I&#8217;ll assume that by some miracle, you are now fluent in everything stack, and I wouldn&#8217;t be bothered to give any more accounts of the source at such level of detail. Ready? Here we go:<br/>
+The first word pushes <code>"abcd"</code> onto the stack; the second <code>1</code>. <code>at</code> looks at the last two things on the stack and treats the top one as a (zero based) index and the one below it as a string (or a list, we&#8217;ll get to those in a bit). It then pops them off and leaves on top the character at the indexed position, in our case <code>'b</code>. Next we push another <code>'b</code> onto the top of the stack and test the equality of the top two items on the stack with <code>equal</code>, popping them off and pushing the result (<code>true</code>) onto the top.</p>
+
+<p>Feeling fluent now? Great, moving on&#8230;</p>
+
+<p>Next we have list literals, written in square brackets, so this yields 3:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[1 2 3 4 5] 2 at</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Lists are heterogeneous and can contain anything, so this <code>[1 'c 2 "abc" [1 2 3] 5]</code> is a valid list.</p>
+
+<p>Set literals can be written in curly brackets, as in <code>{1 2 3}</code>, but they can only contain &#8220;small integers&#8221;, so I didn&#8217;t really have any use for them further down the road (too bad you can&#8217;t plug in other implementations into this syntax, oh well&#8230;).</p>
+
+<p>There is also a whole array of stack manipulation functions, such as swapping and duplicating items on the stack. So the following yields the square of 4:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>4 dup *  # =&gt; 16</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(The hash sign designates a comment)</p>
+
+<p><strong>Interlude</strong>: <code>[[dup  dip  pop]  dip]  dip  swap  dip  dup  dip  pop</code></p>
+
+<p>Now come the interesting bits - the lists introduced above are not plain lists, they are quoted programs (think Lisp lists). This means that the list <code>[4 dup *]</code> is actually a value representing the program above; it can be passed around and evaluated at will. Evaluation is accomplished via <em>combinators</em>. These take quoted programs as input and use them to calculate new values.<br/>
+The simplest combinator is <code>i</code>; it just evaluates (unquotes) the quoted program at the top of the stack, like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[4 dup *] i # =&gt; 16</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&#8217;s look at a slightly more interesting example. The combinator <code>map</code> takes a quoted program and applies it to the elements of a list:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[1 2 3 4] [dup *] map # =&gt; [1 4 9 16]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The above is one of the most common use cases for higher order functions, so we got that topic covered.</p>
+
+<p>By now, you might&#8217;ve noticed the conspicuous lack of control structures, guess what, these are also implemented with combinators. The standard <code>if then else</code> form looks like:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>1500 [1000 &gt;]  [2 /]  [3 *]  ifte  # =&gt; 750</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The first list is the condition, which is checked against the top of the stack (in this case 1500). If the condition is met, we apply the second quote to the top of the stack, otherwise the third.<br/>
+It takes a little time to get used to this sort of syntax, but after you get it, there&#8217;s a whole world of flexibility here&#8230;</p>
+
+<p>The last type of combinators we&#8217;ll look at are recursive combinators. These allow one to create recursive functions using anonymous recursion. The most basic recursive combinator is <code>linrec</code>, which performs linear recursion. The textbook example for linear recursion is the factorial, implementing it with <code>linrec</code> we get</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[null]  [succ]  [dup pred]  [*]  linrec</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The first quote is the <code>if</code> part, it checks for the base case (here, whether the current argument is 0). The second quote is the <code>then</code> part, which is executed when we reach the base case (here, when we reach 0, we take its successor, 1, and leave it on the stack). The last two quotes are the <code>else1</code> and <code>else2</code> parts. The first is executed before we take the recursive step; in here we duplicate the argument and take the predecessor of the copy. The second quote is executed after the recursion step, in this case we multiply the top two items on the stack. To sum up, we are recursively filling up the stack with the numbers from the given argument down to 1, then, when we back up, we are multiplying them in pairs leaving the result on top all the time, until we reach the original value. The last multiplication step gives us the value of the factorial at the top of the stack.</p>
+
+<p>I found combinators to be my biggest stumbling block on the path to readability - when looking at a new combinator, you really haven&#8217;t a chance of figuring out its purpose unless its name is very obvious or you have its documentation at hand. Take this for example:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[1]  [*]  primrec</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Can you guess what that function does? It happens to be the very same factorial function from before, implemented with a specialized version of <code>linrec</code>; it wasn&#8217;t that obvious to me&#8230;<br/>
+As you know, with great flexibility come great code obfuscation powers. But also, great DSL powers, and I really like DSLs, so overall, I&#8217;m sure the whole combinators thing works out fine.</p>
+
+<p>There are plenty more useful functions and combinators; you can see the whole standard library <a href="http://www.kevinalbrecht.com/code/joy-mirror/html-manual.html">here</a>.</p>
+
+<p>The last bit of syntax I left out are definitions; you can actually give names to stuff in Joy. So if we wanted to name our square and factorial functions, we could do it like so:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEFINE 
+</span><span class='line'>   square == dup *;
+</span><span class='line'>   factorial == [1]  [*]  primrec.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And use it like so:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>4 square # =&gt; 16
+</span><span class='line'>5 factorial # =&gt; 120</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are also some modularization/information hiding facilities built in, but I won&#8217;t be using them here, so moving right along.</p>
+
+<p>This sums up my not so brief but definitely incomplete introduction to Joy. The most glaring thing I glossed over is the mathematical foundations of Joy. It so happens that Joy is a function-level programming language, in the sense that there are no values in the language, just functions. No, <code>42</code> is not a value, <code>42</code> is a function that takes a stack and returns a new stack with the value <code>42</code> on top. So without noticing it, all along we&#8217;ve been composing functions and not just that - we&#8217;ve been using point-free style while at it.<br/>
+Although I didn&#8217;t delve deep into the maths myself, its presence definitely makes me feel better. I like it when a language is well thought through; such elegance can only come from math.</p>
+
+<p>All together now:<br/>
+<strong>Outro</strong>: <code>[dup dip pop]  dip  dup  dip  pop</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Introduction]]></title>
+    <link href="http://ncreep.github.com/language_perils/blog/2013-03-18-introduction.html"/>
+    <updated>2013-03-18T04:45:00+02:00</updated>
+    <id>http://ncreep.github.com/language_perils/blog/introduction</id>
+    <content type="html"><![CDATA[<p>I like programming languages, and I just couldn&#8217;t find a proper excuse to learn them. So I decided to go on and learn them without an excuse.</p>
+
+<p>My first attempt at doing so was via the amazing book by <a href="http://rapidred.com/">Bruce Tate</a>, &#8221;<a href="http://www.amazon.com/gp/product/193435659X/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=193435659X&amp;linkCode=as2&amp;tag=languperil-20">Seven Languages in Seven Weeks</a>&#8221; (great read, highly recommended).</p>
+
+<p>After sparking my initial interest in learning programming languages for fun (and ruining my ability to calmly write plain old Java), that book left me with an itch for more. The itch kept on spreading when I came across a blog post &#8221;<a href="http://blog.fogus.me/2011/08/14/perlis-languages/">Perlis Languages</a>&#8221; by the brilliant <a href="http://www.fogus.me/">Fogus</a>, go on and read it.</p>
+
+<p>As I personally almost never go on and read stuff pointed to in posts, I&#8217;ll give a quick recap of that post here.</p>
+
+<p>It starts off with a quote by Alan Perlis:</p>
+
+<blockquote><p>A language that doesn&#8217;t affect the way you think about programming is not worth knowing.</p></blockquote>
+
+<p>Next, Fogus goes on to explain how one can and should expand one&#8217;s views on software development, namely, by learning &#8220;Perlis Languages&#8221;:</p>
+
+<blockquote><p>A Perlis Language is a programming language that I believe will shake one&#8217;s views on software development to the core.</p></blockquote>
+
+<!-- more -->
+
+
+<p>This is followed by a list of (mostly esoteric) programming languages, with their short descriptions, code samples and links to further information. (You really should read the full post, though.)</p>
+
+<p>And I got this idea – to start learning the languages from that list and document the process here.</p>
+
+<p>So how is it going to work? Well, I&#8217;ll randomly select a language from the list and go on and learn it. To show off my newly acquired knowledge, I&#8217;ll devise a small project or two to implement using the language. The project (or two) will probably be something for a couple of weeks work, e.g., the sort of projects you may get as homework assignments in CS classes. As the process goes on, I&#8217;ll be posting my impressions here.</p>
+
+<p>What&#8217;s in it for you, you&#8217;ll ask? First off, you&#8217;ll get a glimpse into the twisted mind of a budding polyglot - who knows what sort of gray matter you may find there? Other than that, I hope this whole thing might have some educational value, either for people like me who just enjoy learning new languages, or, maybe, for the occasional language designer, who might find a user&#8217;s point of view in some way conducive to his or her PL activities.</p>
+
+<p>And now for a short disclaimer:</p>
+
+<p>This is going to be an ongoing side project of mine, so I can&#8217;t really guarantee my rate of progress; hopefully I&#8217;ll have enough time and will power to keep on going at a relatively constant rate.</p>
+
+<p>The language list is not fixed in stone; I might omit some languages from the original list and maybe add some other languages. It all will be guided by what is most interesting to me at the moment, though don&#8217;t expect to see your regular Java.next language here&#8230;</p>
+
+<p>In any case, I&#8217;m not pretending to be any sort of expert in any of the languages I&#8217;m about to learn (duh…). Feedback and constructive criticism are always more than welcome.</p>
+
+<p>Next stop, <a href="http://ncreep.github.com/language_perils/blog/2013-03-18-the-joy-of-joy.html">Joy</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>
