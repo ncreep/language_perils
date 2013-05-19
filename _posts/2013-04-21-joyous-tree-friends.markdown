@@ -15,7 +15,7 @@ The reason for this boring textbook example is twofold. First, Joy being, for me
 
 <!-- more -->
 
-(Source code for this post is in the [repository](https://github.com/ncreep/language_perils/blob/master/Joy/BinTree/Trees.joy)).
+(Source code for this post is in the [repository](https://github.com/ncreep/language_perils/blob/master/Joy/bin_tree/Trees.joy)).
 
 First thing first, we need to have some representation of our tree. Now, we are quite far from our cozy OO land, mind you; we don't even have simple structs in Joy. So this is your typical "we're not in Kansas anymore" situation.  
 The omnipresent lists to the rescue. As we remember (or not), lists in Joy are heterogeneous, so we can stuff anything in them, including other lists, which fits well with the recursive nature of trees.
@@ -46,7 +46,7 @@ Untangled all the brackets? Great, we can move on.
 
 In view of how simple the tree representation is, the second reason for implementing binary trees kind of evaporates, oh well...
 
-The [full source code](https://github.com/ncreep/language_perils/blob/master/Joy/BinTree/Trees.joy) should be documented enough to be, in most parts, fairly readable; so I won't be explaining it step by step here. The final result is rather boring, e.g., we can create and query a tree like this:
+The [full source code](https://github.com/ncreep/language_perils/blob/master/Joy/bin_tree/Trees.joy) should be documented enough to be, in most parts, fairly readable; so I won't be explaining it step by step here. The final result is rather boring, e.g., we can create and query a tree like this:
 ```
 new-tree [4 8 6 1 3 6 4 3 4 9] add-all 3 tree-contains # => true
 ```
