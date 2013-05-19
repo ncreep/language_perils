@@ -1,0 +1,29 @@
+(*
+Exercising the code in meta.joy using the insert-at function.
+The insert-at function is defined as: 
+	inserts an item at a given position, deleting the previous item: list val index -> list
+	
+Example usage of a function:
+	[1 2 3] "foo" 1 insert-at. # => [1 "foo" 3]
+
+*)
+
+"meta.joy" include.
+DEFINE 
+	# plain insert-at without anything special from meta
+	insert-at == 
+		swapd 
+		[take] nullary rollup
+		1 + drop
+		enconcat;
+		
+	# splicing arguments from the stack using numeric indices
+	insert-at-splice-from-stack == [
+		~1
+		~0 ~2 take
+		~0 ~2 1 + drop
+		enconcat
+	] 3 splice-from-stack;
+
+	
+.

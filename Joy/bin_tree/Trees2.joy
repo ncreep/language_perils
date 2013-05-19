@@ -114,7 +114,7 @@ DEFINE
 	
 	(* Splicing related functions. *)
 	
-	# maps a function over the items of an arbitrarily nested list: list -> list
+	# maps a function over the items of an arbitrarily nested list: list func -> list
 	treemap == [] [map] treegenrec;
 	
 	# checks whether a list or string starts with a given value: list val -> boolean

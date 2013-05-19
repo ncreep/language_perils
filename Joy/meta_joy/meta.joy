@@ -1,0 +1,153 @@
+(*
+Code for meta-programming in Joy. 
+Usage examles in insert_at.joy.
+*)
+DEFINE
+	# maps a function over the items of an arbitrarily nested list: list func -> list
+	treemap == [] [map] treegenrec;
+	
+	# flattenes an arbitrarily nested list into a flat list: list -> list
+	treeflatten  ==  [] swap [swons] treestep reverse;
+	
+	# wraps an item in a list: item -> [item]
+	tolist == [] cons;
+	
+	# checks whether a list or string starts with a given value: list val -> boolean
+	starts-with == swap first =;
+	
+	# checks whether a keyword is a splice pattern, i.e. its string form starts with '~: keyword -> boolean
+	is-splice-pattern == name '~ starts-with;
+	
+	# converts a splicing pattern into a string: keyword -> string
+	splice-to-str == name rest;
+	
+	(* splicing from a list *)
+	
+	# converts a string to number: string -> num
+	to-num == 0 strtol;
+	
+	# checks whether a string represents a number: string -> boolean
+	is-num-string == to-num dup name =;
+	
+	# converts a splicing pattern into a number: keyword -> num
+	splice-to-num == name rest to-num;
+	
+	# checkes whether a keyword is a numeric splicing pattern: keyword -> boolean
+	is-num-splice-pattern == 
+		[is-splice-pattern]
+		[splice-to-str is-num-string]
+		[false] ifte;
+		
+	# fetches all numeric splice patterns from a tree: tree -> list
+	num-splice-patterns == treeflatten [is-num-splice-pattern] filter;
+	
+	# applies get-splice-patterns to a tree and converts them into numbers
+	splice-patterns-nums == num-splice-patterns [splice-to-num] map;
+	
+	(*
+		Replacing all occurrences of the pattern "~X" (where X is a number) in 
+		an arbitrarily nested list with the X numbered items of a list, then applying
+		the resulting list as a program: list program -> program
+		So this:
+		["four" "two" "five"] [~0  [1 ~1 3] [~2 6 7] enconcat] splice-from-list.
+		becomes (before application):
+		["four"  [2 "two" 4] ["five" 6 7] enconcat] 
+		which results in:
+		[1 "two" 3 "four" "five" 6 7]
+	*)
+	splice-from-list == [ 
+		[is-num-splice-pattern] 
+		[splice-to-num at] 
+		[]
+		ifte
+	] treemap popd i;
+	
+	# takes a specified number of items from the top of the stack and converts them to a list: items num -> list
+	take-from-stack == [] swap [cons] times;
+
+	(* 
+		The same as splice-from-list, but takes a perdefined number of items from the stack 
+		as the list to be spliced in:  program num -> program
+		So this code is equivalent to the example in splice-from-list:
+		"four" "two" "five"  [~0  [1 ~1 3] [~2 6 7] enconcat] 3 splice-from-stack.
+	*)
+	splice-from-stack ==  swap [take-from-stack] dip splice-from-list;
+	
+	# finds the numeric value of the maximal splicing pattren in the tree: tree -> num
+	max-splice-num == splice-patterns-nums -1 [max] fold;
+	
+	(*
+		The same as splice-from-stack with the numeric argument inferred from the maximal value of the splicing
+		pattern: program -> program.
+		So this code is equivalent to the example in splice-from-stack:
+		"four" "two" "five"  [~0  [1 ~1 3] [~2 6 7] enconcat] splice-from-stack-max.
+	*)
+	splice-from-stack-max == [max-splice-num 1 +] nullary splice-from-stack;
+	
+	(* splicing from a map *)
+	
+	# converts a map entry into a string key: [key value] -> string key
+	get-key == first name;
+	
+	# gets the value frome a key value entry; [key value] -> value
+	get-value == 1 at;
+	
+	(* 
+		Takes a map and a string key and tries to find the occurence of the key in the map: map key -> value.
+		The map has the following structure: [[key1 value1] [key2 value2] ...]
+		Where each value can be anything and and the key is a Joy word converted to a string using "name".
+		The function assumes that the key is present in the map.
+	*)
+	find-by-key == 
+		# creating a filter predicate: [get-key key =]
+		[get-key] [=] enconcat
+		filter 
+		# fetching the first result's value
+		first get-value;	
+	
+	(*
+		Replacing all occurrences of the pattern "~X" (where X is a keyword) in 
+		an arbitrarily nested list with the X keyed items of a map, then applying
+		the resulting list as a program: map program -> program
+		So this:
+		[[four "four"] [two "two"] [five "five"]] [~four  [1 ~two 3] [~five 6 7] enconcat] splice-from-map.
+		becomes (before application):
+		["four"  [2 "two" 4] ["five" 6 7] enconcat] 
+		which results in:
+		[1 "two" 3 "four" "five" 6 7]
+	*)
+	splice-from-map == [ 
+		[is-splice-pattern] 
+		[splice-to-str find-by-key] 
+		[]
+		ifte
+	] treemap popd i;
+	
+	(*
+		The sake as splice-from-map with the input map and program joined into a single argument: [map program] -> program.
+		Note that the program should not be quoted.
+		So this code is equivalent to the example in splice-from-map:
+		[[[four "four"] 
+		  [two "two"] 
+		  [five "five"]] 
+		  
+		 ~four  [1 ~two 3] [~five 6 7] enconcat
+		 ] let.
+	*)
+	let ==  [first] [rest] cleave splice-from-map;
+	
+	(*
+		Same as let, but optionally allows stack splicing patterns as in splice-from-stack-max: [map program] -> program.
+		So this code is equivalent to the example in let:
+		"four" "two"
+		[[[four ~0] 
+		  [five "five"]] 
+		  
+		 ~four  [1 ~1 3] [~five 6 7] enconcat
+		 ] let-splice.
+	*)
+	let-splice == 
+		# using a map to hold the result of the splice unevaluated
+		tolist [splice-from-stack-max] map
+		;
+.
