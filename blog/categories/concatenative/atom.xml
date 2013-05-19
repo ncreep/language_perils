@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: concatenative | Language Perils]]></title>
-  <link href="http://ncreep.github.com/language_perils/blog/categories/concatenative/atom.xml" rel="self"/>
-  <link href="http://ncreep.github.com/language_perils/"/>
-  <updated>2013-04-21T18:51:36+03:00</updated>
-  <id>http://ncreep.github.com/language_perils/</id>
+  <link href="http://ncreep.github.io/language_perils/blog/categories/concatenative/atom.xml" rel="self"/>
+  <link href="http://ncreep.github.io/language_perils/"/>
+  <updated>2013-05-19T06:56:30+03:00</updated>
+  <id>http://ncreep.github.io/language_perils/</id>
   <author>
     <name><![CDATA[Daniel Beskin]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Joyous Tree Friends]]></title>
-    <link href="http://ncreep.github.com/language_perils/blog/2013-04-21-joyous-tree-friends.html"/>
+    <link href="http://ncreep.github.io/language_perils/blog/2013-04-21-joyous-tree-friends.html"/>
     <updated>2013-04-21T18:15:00+03:00</updated>
-    <id>http://ncreep.github.com/language_perils/blog/joyous-tree-friends</id>
+    <id>http://ncreep.github.io/language_perils/blog/joyous-tree-friends</id>
     <content type="html"><![CDATA[Having introduced Joy in the [previous post](/blog/2013-03-18-the-joy-of-joy.html), as per our [grand scheme of things](/blog/2013-03-18-introduction.html), we are now ready for some coding.
 
 
@@ -27,7 +27,7 @@ The reason for this boring textbook example is twofold. First, Joy being, for me
 
 <!-- more -->
 
-(Source code for this post is in the [repository](https://github.com/ncreep/language_perils/blob/master/Joy/BinTree/Trees.joy)).
+(Source code for this post is in the [repository](https://github.com/ncreep/language_perils/blob/master/Joy/bin_tree/Trees.joy)).
 
 First thing first, we need to have some representation of our tree. Now, we are quite far from our cozy OO land, mind you; we don't even have simple structs in Joy. So this is your typical "we're not in Kansas anymore" situation.  
 The omnipresent lists to the rescue. As we remember (or not), lists in Joy are heterogeneous, so we can stuff anything in them, including other lists, which fits well with the recursive nature of trees.
@@ -58,7 +58,7 @@ Untangled all the brackets? Great, we can move on.
 
 In view of how simple the tree representation is, the second reason for implementing binary trees kind of evaporates, oh well...
 
-The [full source code](https://github.com/ncreep/language_perils/blob/master/Joy/BinTree/Trees.joy) should be documented enough to be, in most parts, fairly readable; so I won't be explaining it step by step here. The final result is rather boring, e.g., we can create and query a tree like this:
+The [full source code](https://github.com/ncreep/language_perils/blob/master/Joy/bin_tree/Trees.joy) should be documented enough to be, in most parts, fairly readable; so I won't be explaining it step by step here. The final result is rather boring, e.g., we can create and query a tree like this:
 ```
 new-tree [4 8 6 1 3 6 4 3 4 9] add-all 3 tree-contains # => true
 ```
@@ -192,9 +192,9 @@ To be continued...
   
   <entry>
     <title type="html"><![CDATA[The Joy of Joy]]></title>
-    <link href="http://ncreep.github.com/language_perils/blog/2013-03-18-the-joy-of-joy.html"/>
+    <link href="http://ncreep.github.io/language_perils/blog/2013-03-18-the-joy-of-joy.html"/>
     <updated>2013-03-18T06:21:00+02:00</updated>
-    <id>http://ncreep.github.com/language_perils/blog/the-joy-of-joy</id>
+    <id>http://ncreep.github.io/language_perils/blog/the-joy-of-joy</id>
     <content type="html"><![CDATA[**Intro**: `[swap  dip  dup  dip  pop]  dip  dup  dip  pop`  
 (sing aloud accompanied by a Jazz trio or even *a cappella*)
 

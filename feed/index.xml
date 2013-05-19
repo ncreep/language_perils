@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Language Perils]]></title>
-  <link href="http://ncreep.github.com/language_perils/feed" rel="self"/>
-  <link href="http://ncreep.github.com/language_perils/"/>
-  <updated>2013-04-21T18:51:36+03:00</updated>
-  <id>http://ncreep.github.com/language_perils/</id>
+  <link href="http://ncreep.github.io/language_perils/feed" rel="self"/>
+  <link href="http://ncreep.github.io/language_perils/"/>
+  <updated>2013-05-19T06:56:30+03:00</updated>
+  <id>http://ncreep.github.io/language_perils/</id>
   <author>
     <name><![CDATA[Daniel Beskin]]></name>
     
@@ -15,10 +15,10 @@
   
   <entry>
     <title type="html"><![CDATA[Joyous Tree Friends]]></title>
-    <link href="http://ncreep.github.com/language_perils/blog/2013-04-21-joyous-tree-friends.html"/>
+    <link href="http://ncreep.github.io/language_perils/blog/2013-04-21-joyous-tree-friends.html"/>
     <updated>2013-04-21T18:15:00+03:00</updated>
-    <id>http://ncreep.github.com/language_perils/blog/joyous-tree-friends</id>
-    <content type="html"><![CDATA[<p>Having introduced Joy in the <a href="http://ncreep.github.com/language_perils/blog/2013-03-18-the-joy-of-joy.html">previous post</a>, as per our <a href="http://ncreep.github.com/language_perils/blog/2013-03-18-introduction.html">grand scheme of things</a>, we are now ready for some coding.</p>
+    <id>http://ncreep.github.io/language_perils/blog/joyous-tree-friends</id>
+    <content type="html"><![CDATA[<p>Having introduced Joy in the <a href="http://ncreep.github.io/language_perils/blog/2013-03-18-the-joy-of-joy.html">previous post</a>, as per our <a href="http://ncreep.github.io/language_perils/blog/2013-03-18-introduction.html">grand scheme of things</a>, we are now ready for some coding.</p>
 
 <p>As a first small project, I decided to try and implement a simple <a href="http://en.wikipedia.org/wiki/Binary_search_tree">binary search tree</a>. Nothing fancy, no self-balancing or anything <a href="http://j.rigelseven.com/read/67201/">evil like that</a>. Just your Plain Old Binary Search Tree (which can be handily abbreviated as POBST).</p>
 
@@ -27,7 +27,7 @@
 <!-- more -->
 
 
-<p>(Source code for this post is in the <a href="https://github.com/ncreep/language_perils/blob/master/Joy/BinTree/Trees.joy">repository</a>).</p>
+<p>(Source code for this post is in the <a href="https://github.com/ncreep/language_perils/blob/master/Joy/bin_tree/Trees.joy">repository</a>).</p>
 
 <p>First thing first, we need to have some representation of our tree. Now, we are quite far from our cozy OO land, mind you; we don&#8217;t even have simple structs in Joy. So this is your typical &#8220;we&#8217;re not in Kansas anymore&#8221; situation.<br/>
 The omnipresent lists to the rescue. As we remember (or not), lists in Joy are heterogeneous, so we can stuff anything in them, including other lists, which fits well with the recursive nature of trees.</p>
@@ -48,7 +48,7 @@ The omnipresent lists to the rescue. As we remember (or not), lists in Joy are h
 
 <p>And this tree</p>
 
-<p><img class="center" src="http://ncreep.github.com/language_perils/images/joy/simple_tree.png"></p>
+<p><img class="center" src="http://ncreep.github.io/language_perils/images/joy/simple_tree.png"></p>
 
 <p>is</p>
 
@@ -60,7 +60,7 @@ The omnipresent lists to the rescue. As we remember (or not), lists in Joy are h
 
 <p>In view of how simple the tree representation is, the second reason for implementing binary trees kind of evaporates, oh well&#8230;</p>
 
-<p>The <a href="https://github.com/ncreep/language_perils/blob/master/Joy/BinTree/Trees.joy">full source code</a> should be documented enough to be, in most parts, fairly readable; so I won&#8217;t be explaining it step by step here. The final result is rather boring, e.g., we can create and query a tree like this:</p>
+<p>The <a href="https://github.com/ncreep/language_perils/blob/master/Joy/bin_tree/Trees.joy">full source code</a> should be documented enough to be, in most parts, fairly readable; so I won&#8217;t be explaining it step by step here. The final result is rather boring, e.g., we can create and query a tree like this:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>new-tree [4 8 6 1 3 6 4 3 4 9] add-all 3 tree-contains # =&gt; true</span></code></pre></td></tr></table></div></figure>
@@ -260,9 +260,9 @@ For the sport of it, let&#8217;s try to follow the definition.</p>
   
   <entry>
     <title type="html"><![CDATA[The Joy of Joy]]></title>
-    <link href="http://ncreep.github.com/language_perils/blog/2013-03-18-the-joy-of-joy.html"/>
+    <link href="http://ncreep.github.io/language_perils/blog/2013-03-18-the-joy-of-joy.html"/>
     <updated>2013-03-18T06:21:00+02:00</updated>
-    <id>http://ncreep.github.com/language_perils/blog/the-joy-of-joy</id>
+    <id>http://ncreep.github.io/language_perils/blog/the-joy-of-joy</id>
     <content type="html"><![CDATA[<p><strong>Intro</strong>: <code>[swap  dip  dup  dip  pop]  dip  dup  dip  pop</code><br/>
 (sing aloud accompanied by a Jazz trio or even <em>a cappella</em>)</p>
 
@@ -404,9 +404,9 @@ Although I didn&#8217;t delve deep into the maths myself, its presence definitel
   
   <entry>
     <title type="html"><![CDATA[Introduction]]></title>
-    <link href="http://ncreep.github.com/language_perils/blog/2013-03-18-introduction.html"/>
+    <link href="http://ncreep.github.io/language_perils/blog/2013-03-18-introduction.html"/>
     <updated>2013-03-18T04:45:00+02:00</updated>
-    <id>http://ncreep.github.com/language_perils/blog/introduction</id>
+    <id>http://ncreep.github.io/language_perils/blog/introduction</id>
     <content type="html"><![CDATA[<p>I like programming languages, and I just couldn&#8217;t find a proper excuse to learn them. So I decided to go on and learn them without an excuse.</p>
 
 <p>My first attempt at doing so was via the amazing book by <a href="http://rapidred.com/">Bruce Tate</a>, &#8221;<a href="http://www.amazon.com/gp/product/193435659X/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=193435659X&amp;linkCode=as2&amp;tag=languperil-20">Seven Languages in Seven Weeks</a>&#8221; (great read, highly recommended).</p>
@@ -442,7 +442,7 @@ Although I didn&#8217;t delve deep into the maths myself, its presence definitel
 
 <p>In any case, I&#8217;m not pretending to be any sort of expert in any of the languages I&#8217;m about to learn (duh…). Feedback and constructive criticism are always more than welcome.</p>
 
-<p>Next stop, <a href="http://ncreep.github.com/language_perils/blog/2013-03-18-the-joy-of-joy.html">Joy</a>.</p>
+<p>Next stop, <a href="http://ncreep.github.io/language_perils/blog/2013-03-18-the-joy-of-joy.html">Joy</a>.</p>
 ]]></content>
   </entry>
   

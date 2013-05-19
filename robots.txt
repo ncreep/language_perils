@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: http://ncreep.github.com/language_perils/sitemap.xml 
+Sitemap: http://ncreep.github.io/language_perils/sitemap.xml 
