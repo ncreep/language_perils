@@ -25,7 +25,7 @@ DEFINE
 		enconcat
 	] splice;
 	
-	# splicing arguments using a let
+	# splicing arguments using a let-splice
 	insert-at-let-splice == [
 		[[list ~0] [val ~1] [index ~2]]
 		~val
@@ -33,4 +33,13 @@ DEFINE
 		~list ~index 1 + drop
 		enconcat
 	] let-splice;
+	
+	# splicing arguments using a let-short-splice
+	insert-at-let-short-splice == [
+		[list val index]
+		~val
+		~list ~index take
+		~list ~index 1 + drop
+		enconcat
+	] let-short-splice;
 .
