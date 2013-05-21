@@ -166,21 +166,21 @@ DEFINE
 		  [five "f" "ive" concat]] 
 		  
 		 ~four  [1 ~two 3] [~five 6 7] enconcat
-		 ] let.
+		 ] let-map.
 	*)
-	let ==  [first] [rest] cleave splice-from-map;
+	let-map ==  [first] [rest] cleave splice-from-map;
 	
 	(*
-		Same as let, but optionally allows stack splicing patterns as in splice-from-stack-max: [map program] -> result-of-program.
+		Same as let-map, but optionally allows stack splicing patterns as in splice-from-stack-max: [map program] -> result-of-program.
 		So this code is equivalent to the example in let:
 		"four" "two"
 		[[[four ~0] 
 		  [five "f" "ive" concat]] 
 		  
 		 ~four  [1 ~1 3] [~five 6 7] enconcat
-		 ] let-splice.
+		 ] let.
 	*)
-	let-splice == splice-from-stack-max	let;
+	let == splice-from-stack-max let-map;
 	
 	(*
 		Converts a list into a map, where each item in the list is mapped to an indexed splice pattern: list -> map.
@@ -193,21 +193,20 @@ DEFINE
 			[~cur] ~index num-to-splice intern append
 			~new-list cons 
 			~index succ tuple
-		] let-splice] 
+		] let] 
 		fold first;
 	
 	(*
-		Like let-splice but infers the keyword values from the stack: [list program] -> result-of-program.
+		Like let but infers the keyword values from the stack: [list program] -> result-of-program.
 		So this:
 		"four" "five" "two" 
 		[[four five] 
 		  
 		  ~four  [1 ~2 3] [~five 6 7] enconcat
-		 ] let-short-splice.
+		 ] let-splice.
 		 
 		Becomes:
 		[1 "two" 3 "four" "five" 6 7]
 	*)
-	let-short-splice == [first list-to-splice] [rest] cleave cons let-splice;
-
+	let-splice == [first list-to-splice] [rest] cleave cons let;
 .
