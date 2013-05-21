@@ -4,13 +4,32 @@ Usage examles in insert_at.joy.
 *)
 DEFINE
 	# maps a function over the items of an arbitrarily nested list: list func -> list
-	treemap == [] [map] treegenrec;
+	treemap == [map] treerec;
 	
 	# flattenes an arbitrarily nested list into a flat list: list -> list
 	treeflatten  ==  [] swap [swons] treestep reverse;
 	
-	# wraps an item in a list: item -> [item]
-	tolist == [] cons;
+	# appending an item to the end of a list: list val -> list
+	append == swap [] enconcat;
+	
+	# flattens a list of lists into a single list: [list] -> list
+	flatten == [] [
+		[list]
+		[concat]
+		[append]
+		ifte] fold;
+		
+	# converts an item into a singleton list: any -> list
+	to-list == [] cons;
+	
+	(*
+		Applies a function to each leaf of a tree and concatenates the results: tree func -> tree.
+		Where func is: any -> list.
+		For example:
+		foo == dup [] cons cons;
+		[1 [2 [3 4]] 3] [foo] treemap-concat # => [1 1 [2 2 [3 3 4 4]] 3 3]
+	*)
+	treemap-concat == [map flatten to-list] treerec first;
 	
 	# checks whether a list or string starts with a given value: list val -> boolean
 	starts-with == swap first =;
@@ -72,9 +91,8 @@ DEFINE
 		"four" "two" "five"  [~0  [1 ~1 3] [~2 6 7] enconcat] 3 splice-from-stack.
 	*)
 	splice-from-stack ==  swap [take-from-stack] dip splice-from-list;
-	
-	
-	# finds the numeric value of the maximal splicing pattren in the tree: tree -> num
+		
+	# finds the numeric value of the maximal splicing pattren in the tree (-1 for no splice patterns): tree -> num
 	max-splice-num == splice-patterns-nums -1 [max] fold;
 	
 	(*
@@ -93,8 +111,8 @@ DEFINE
 	# converts a map entry into a string key: [key value] -> string key
 	get-key == first name;
 	
-	# gets the value frome a key value entry; [key value] -> value
-	get-value == 1 at;
+	# gets the value frome a key value entry; [key value] -> [value]
+	get-value == rest;
 	
 	(* 
 		Takes a map and a string key and tries to find the occurence of the key in the map: map key -> value.
@@ -114,18 +132,18 @@ DEFINE
 		an arbitrarily nested list with the X keyed items of a map, then applying
 		the resulting list as a program: map program -> result-of-program
 		So this:
-		[[four "four"] [two "two"] [five "five"]] [~four  [1 ~two 3] [~five 6 7] enconcat] splice-from-map.
+		[[four "four"] [two "two"] [five "f" "ive" concat]] [~four  [1 ~two 3] [~five 6 7] enconcat] splice-from-map.
 		becomes (before application):
-		["four"  [2 "two" 4] ["five" 6 7] enconcat] 
+		["four" [1 "two" 3] ["f" "ive" concat 6 7] enconcat]
 		which results in:
-		[1 "two" 3 "four" "five" 6 7]
+		[1 "two" 3 "four" "f" "ive" concat 6 7]
 	*)
 	splice-from-map == [ 
 		[is-splice-pattern] 
 		[splice-to-str find-by-key] 
 		[]
 		ifte
-	] treemap popd i;
+	] treemap-concat popd i;
 	
 	(*
 		The sake as splice-from-map with the input map and program joined into a single argument: [map program] -> result-of-program.
@@ -133,7 +151,7 @@ DEFINE
 		So this code is equivalent to the example in splice-from-map:
 		[[[four "four"] 
 		  [two "two"] 
-		  [five "five"]] 
+		  [five "f" "ive" concat]] 
 		  
 		 ~four  [1 ~two 3] [~five 6 7] enconcat
 		 ] let.
@@ -145,7 +163,7 @@ DEFINE
 		So this code is equivalent to the example in let:
 		"four" "two"
 		[[[four ~0] 
-		  [five "five"]] 
+		  [five "f" "ive" concat]] 
 		  
 		 ~four  [1 ~1 3] [~five 6 7] enconcat
 		 ] let-splice.
