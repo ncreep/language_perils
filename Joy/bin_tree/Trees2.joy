@@ -1,6 +1,7 @@
 (* 
 A binary tree where each node is a list [value left right], where all items are optional. 
 The tree is immutable, so all mutating operations create a new modified copy of the tree.
+This implementation relies on functions from meta.joy.
 Possible usage: 
 	"Trees2.joy" include.
 	# clearing stack 
@@ -14,6 +15,7 @@ Possible usage:
 	# filling with values and checking whether the tree contains a specific value
 	new-tree [4 8 6 1 3 6 4 3 4 9] add-all 3 tree-contains.
 *)
+"../meta_joy/meta.joy" include.
 DEFINE 
 	# creates a new empty tree
 	new-tree == [];
@@ -22,11 +24,12 @@ DEFINE
 		
 	# inserts an item at a given position, deleting the previous item: list val index -> list
 	insert-at == [
-		~1
-		~0 ~2 take
-		~0 ~2 1 + drop
-		enconcat
-	] 3 splice-from-stack;
+		[list val index]
+			val
+			list index take
+			list index 1 + drop
+			enconcat
+	] let-splice;
 
 	(* getters and setters for a tree node *)
 	
@@ -50,25 +53,26 @@ DEFINE
 	# getting the only child of a tree: tree -> val
 	get-child == [has-left] [left-tree] [right-tree] ifte;
 
-	# creates a function that finds a value in the tree and rebuilds it according to a pair of actions: tree value [empty val] -> tree
+	# creates a function that finds a value in the tree and rebuilds it according to a pair of actions: tree value empty val -> tree
 	# where empty and val are functions of the form: value tree -> tree
-	build-tree-with-value == [ swap [
-		# invoking the handler function for the empty case
-		[ [empty-tree] ~0 ]
-		# invoking the handler function for the found value case
-		[ [value =] ~1 ]
-		[ [value <] [dup left-tree swapd] [insert-left] ]
-		[ [dup right-tree swapd] [insert-right] ]
-	] condlinrec ] splice;
-
+	# Note: it seems that there is a bug in the interpreter's GC that prevents this from working properly.
+	build-tree-with-value == [ 
+		[tree insert-val empty-handler val-handler] 
+			insert-val tree [
+			[ [empty-tree] empty-handler ]
+			[ [value =] val-handler ]
+			[ [value <] [[[cur-val cur-tree] cur-tree cur-val cur-tree left-tree] let-splice] [insert-left] ]
+			[           [[[cur-val cur-tree] cur-tree cur-val cur-tree right-tree] let-splice] [insert-right] ]
+		] condlinrec] let-splice;
+		
 	# adding a value on top of the stack to the tree beneath it: tree val -> tree
-	add-val == [[pop [[] []] cons] [popd]] build-tree-with-value;
+	add-val == [pop [[] []] cons] [popd] build-tree-with-value;
 		
 	# adding a list into a tree: tree list -> tree
 	add-all == swap [add-val] fold;
 	
 	# delete a value from the tree: tree val -> tree
-	delete-val == [[popd] [popd delete-tree]] build-tree-with-value;
+	delete-val == [popd] [popd delete-tree] build-tree-with-value;
 	
 	# deleting a list of values from a tree: tree list -> tree
 	delete-all == swap [delete-val] fold;
@@ -111,40 +115,4 @@ DEFINE
 	
 	# creates a random list of numbers of a given size: int -> list
 	make-rands == [] swap [rand swons] times;
-	
-	(* Splicing related functions. *)
-	
-	# maps a function over the items of an arbitrarily nested list: list func -> list
-	treemap == [] [map] treegenrec;
-	
-	# checks whether a list or string starts with a given value: list val -> boolean
-	starts-with == swap first =;
-	
-	# converts a splicing pattern into a number: string -> int
-	splice-to-num == rest 0 strtol;
-	
-	(*
-		Replacing all occurences of the pattern "~X" (where X is a number) in 
-		an arbitrarily nested list with the X numbered items of a list, then applying
-		the resulting list as a program.
-		So this:
-		["four" "two" "five"] [~0  [1 ~1 3] [~2 6 7] enconcat] splice.
-		becomes (before application):
-		["four"  [2 "two" 4] ["five" 6 7] enconcat] 
-		which results in:
-		[1 "two" 3 "four" "five" 6 7]
-	*)
-	splice == [ 
-		[name '~ starts-with] 
-		[name splice-to-num at] 
-		[]
-		ifte
-	] treemap popd i;
-
-	(* 
-		The same as splice, but takes a perdefined number of items from the stack 
-		as the list to be spliced in. So this code is equivalent to the example in splice:
-		"four" "two" "five"  [~0  [1 ~1 3] [~2 6 7] enconcat] 3 splice-from-stack.
-	*)
-	splice-from-stack == swap [[] swap [cons] times] dip splice;
 .
