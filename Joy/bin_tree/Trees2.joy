@@ -37,6 +37,9 @@ DEFINE
 	left-tree == 1 at;
 	right-tree == 2 at;
 	
+	_left-tree == dup left-tree;
+	_right-tree == dup right-tree;
+	
 	insert-value == 0 insert-at;
 	insert-left == 1 insert-at;
 	insert-right == 2 insert-at;
@@ -52,27 +55,25 @@ DEFINE
 	
 	# getting the only child of a tree: tree -> val
 	get-child == [has-left] [left-tree] [right-tree] ifte;
-
+	
 	# creates a function that finds a value in the tree and rebuilds it according to a pair of actions: tree value empty val -> tree
-	# where empty and val are functions of the form: value tree -> tree
-	# Note: it seems that there is a bug in the interpreter's GC that prevents this from working properly.
+	# where empty and val are functions of the form: tree value -> tree
 	build-tree-with-value == [ 
-		[tree insert-val empty-handler val-handler] 
-			insert-val tree [
-			[ [empty-tree] empty-handler ]
-			[ [value =] val-handler ]
-			[ [value <] [[[cur-val cur-tree] cur-tree cur-val cur-tree left-tree] let-splice] [insert-left] ]
-			[           [[[cur-val cur-tree] cur-tree cur-val cur-tree right-tree] let-splice] [insert-right] ]
+		[val empty-handler val-handler] [
+			[ [empty-tree]  [val empty-handler i] ]
+			[ [value val =] [val val-handler i] ]
+			[ [value val >] [_left-tree] [insert-left] ]
+			[           	[_right-tree] [insert-right] ]
 		] condlinrec] let-splice;
-		
+	
 	# adding a value on top of the stack to the tree beneath it: tree val -> tree
-	add-val == [pop [[] []] cons] [popd] build-tree-with-value;
+	add-val == [popd [[] []] cons] [pop] build-tree-with-value;
 		
 	# adding a list into a tree: tree list -> tree
 	add-all == swap [add-val] fold;
 	
 	# delete a value from the tree: tree val -> tree
-	delete-val == [popd] [popd delete-tree] build-tree-with-value;
+	delete-val == [pop] [pop delete-tree] build-tree-with-value;
 	
 	# deleting a list of values from a tree: tree list -> tree
 	delete-all == swap [delete-val] fold;
