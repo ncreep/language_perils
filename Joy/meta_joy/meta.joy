@@ -75,7 +75,7 @@ DEFINE
 	# fetches all numeric splice patterns from a tree: tree -> list
 	num-splice-patterns == treeflatten [is-num-splice-pattern] filter;
 	
-	# applies get-splice-patterns to a tree and converts them into numbers
+	# applies num-splice-patterns to a tree and converts them into numbers
 	splice-patterns-nums == num-splice-patterns [splice-to-num] map;
 	
 	(*
