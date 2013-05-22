@@ -126,6 +126,9 @@ DEFINE
 	# gets the value frome a key value entry; [key value] -> [value]
 	get-value == rest;
 	
+	# creates a predicate to test equality with a map entry's key: key -> predicate
+	key-predicate == [get-key] [=] enconcat;
+	
 	(* 
 		Takes a map and a string key and tries to find the occurence of the key in the map: map key -> value.
 		The map has the following structure: [[key1 value1] [key2 value2] ...]
@@ -133,26 +136,26 @@ DEFINE
 		The function assumes that the key is present in the map.
 	*)
 	find-by-key == 
-		# creating a filter predicate: [get-key key =]
-		[get-key] [=] enconcat
-		filter 
-		# fetching the first result's value
+		key-predicate filter 
 		first get-value;	
+		
+	# checks whether a string key is present in a map: map key -> boolean.
+	key-in-map == key-predicate some;
 	
 	(*
-		Replacing all occurrences of the pattern "~X" (where X is a keyword) in 
+		Replacing all occurrences of the pattern "X" (where X is a keyword) in 
 		an arbitrarily nested list with the X keyed items of a map, then applying
 		the resulting list as a program: map program -> result-of-program
 		So this:
-		[[four "four"] [two "two"] [five "f" "ive" concat]] [~four  [1 ~two 3] [~five 6 7] enconcat] splice-from-map.
+		[[four "four"] [two "two"] [five "f" "ive" concat]] [four  [1 two 3] [five 6 7] enconcat] splice-from-map.
 		becomes (before application):
 		["four" [1 "two" 3] ["f" "ive" concat 6 7] enconcat]
 		which results in:
 		[1 "two" 3 "four" "f" "ive" concat 6 7]
 	*)
 	splice-from-map == [ 
-		[is-splice-pattern] 
-		[splice-to-str find-by-key] 
+		[name key-in-map] 
+		[name find-by-key] 
 		[]
 		ifte
 	] treemap-concat popd i;
@@ -165,7 +168,7 @@ DEFINE
 		  [two "two"] 
 		  [five "f" "ive" concat]] 
 		  
-		 ~four  [1 ~two 3] [~five 6 7] enconcat
+		 four  [1 two 3] [five 6 7] enconcat
 		 ] let-map.
 	*)
 	let-map ==  [first] [rest] cleave splice-from-map;
@@ -177,7 +180,7 @@ DEFINE
 		[[[four ~0] 
 		  [five "f" "ive" concat]] 
 		  
-		 ~four  [1 ~1 3] [~five 6 7] enconcat
+		 four  [1 ~1 3] [five 6 7] enconcat
 		 ] let.
 	*)
 	let == splice-from-stack-max let-map;
@@ -190,9 +193,9 @@ DEFINE
 		[[] 0] 
 		[[
 			[[new-list ~0 first] [index ~0 second] [cur ~1]] 
-			[~cur] ~index num-to-splice intern append
-			~new-list cons 
-			~index succ tuple
+			[cur] index num-to-splice intern append
+			new-list cons 
+			index succ tuple
 		] let] 
 		fold first;
 	
@@ -202,8 +205,8 @@ DEFINE
 		"four" "five" "two" 
 		[[four five] 
 		  
-		  ~four  [1 ~2 3] [~five 6 7] enconcat
-		 ] let-splice.
+		 four  [1 ~2 3] [five 6 7] enconcat
+		] let-splice.
 		 
 		Becomes:
 		[1 "two" 3 "four" "five" 6 7]

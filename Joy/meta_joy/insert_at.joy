@@ -28,18 +28,18 @@ DEFINE
 	# splicing arguments using a let
 	insert-at-let == [
 		[[list ~0] [val ~1] [index ~2]]
-		~val
-		~list ~index take
-		~list ~index 1 + drop
-		enconcat
+			val
+			list index take
+			list index 1 + drop
+			enconcat
 	] let;
 	
 	# splicing arguments using a let-short-splice
 	insert-at-let-splice == [
 		[list val index]
-		~val
-		~list ~index take
-		~list ~index 1 + drop
-		enconcat
+			val
+			list index take
+			list index 1 + drop
+			enconcat
 	] let-splice;
 .
