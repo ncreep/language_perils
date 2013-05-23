@@ -1,6 +1,8 @@
 (*
 Code for meta-programming in Joy. 
 Usage examles in insert_at.joy.
+Note: code using the functions below may get GC heavy, so it won't work well on the Joy
+interpreter without the BDW GC.
 *)
 DEFINE
 	# maps a function over the items of an arbitrarily nested list: list func -> list

@@ -58,6 +58,7 @@ DEFINE
 	
 	# creates a function that finds a value in the tree and rebuilds it according to a pair of actions: tree value empty val -> tree
 	# where empty and val are functions of the form: tree value -> tree
+	# Note: this implementation doesn't work well on the Joy interpreter without the BDW GC.
 	build-tree-with-value == [ 
 		[val empty-handler val-handler] [
 			[ [empty-tree]  [val empty-handler i] ]
