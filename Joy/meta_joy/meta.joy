@@ -45,10 +45,10 @@ DEFINE
 	# the character used as a prefix for splice patterns
 	splice-char == '~;
 	
-	# checks whether a keyword is a splice pattern, i.e. its string form starts with '~: keyword -> boolean
+	# checks whether a symbol is a splice pattern, i.e. its string form starts with '~: symbol -> boolean
 	is-splice-pattern == name splice-char starts-with;
 	
-	# converts a splicing pattern into a string: keyword -> string
+	# converts a splicing pattern into a string: symbol -> string
 	splice-to-str == name rest;
 	
 	(* splicing from a list *)
@@ -62,13 +62,13 @@ DEFINE
 	# checks whether a string represents a number: string -> boolean
 	is-num-string == dup to-num  num-to-str =;
 	
-	# converts a splicing pattern into a number: keyword -> num
+	# converts a splicing pattern into a number: symbol -> num
 	splice-to-num == name rest to-num;
 	
 	# converts a number into a splice pattern: num -> ~num
 	num-to-splice == num-to-str splice-char swap cons;
 	
-	# checkes whether a keyword is a numeric splicing pattern: keyword -> boolean
+	# checkes whether a symbol is a numeric splicing pattern: symbol -> boolean
 	is-num-splice-pattern == 
 		[is-splice-pattern]
 		[splice-to-str is-num-string]
@@ -145,7 +145,7 @@ DEFINE
 	key-in-map == key-predicate some;
 	
 	(*
-		Replacing all occurrences of the pattern "X" (where X is a keyword) in 
+		Replacing all occurrences of the pattern "X" (where X is a symbol) in 
 		an arbitrarily nested list with the X keyed items of a map, then applying
 		the resulting list as a program: map program -> result-of-program
 		So this:
@@ -202,7 +202,7 @@ DEFINE
 		fold first;
 	
 	(*
-		Like let but infers the keyword values from the stack: [list program] -> result-of-program.
+		Like let but infers the symbol values from the stack: [list program] -> result-of-program.
 		So this:
 		"four" "five" "two" 
 		[[four five] 
