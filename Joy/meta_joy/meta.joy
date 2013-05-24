@@ -24,6 +24,9 @@ DEFINE
 	# converts an item into a singleton list: val -> [val]
 	to-list == [] cons;
 	
+	# creates a list of indices of a list of a given length: num -> list. e.g. 3 indices. # => [0 1 2]
+	indices == [] 0 rolldown [dup [append] dip succ] times pop;
+	
 	(*
 		Applies a function to each leaf of a tree and concatenates the results: tree func -> tree.
 		Where func is: val -> list.
@@ -50,6 +53,9 @@ DEFINE
 	
 	# converts a splicing pattern into a string: keyword -> string
 	splice-to-str == name rest;
+	
+	# takes a specified number of items from the top of the stack and converts them to a list: items num -> list
+	take-from-stack == [] swap [cons] times;
 	
 	(* splicing from a list *)
 	
@@ -95,9 +101,6 @@ DEFINE
 		ifte
 	] treemap popd;
 	
-	# takes a specified number of items from the top of the stack and converts them to a list: items num -> list
-	take-from-stack == [] swap [cons] times;
-
 	(* 
 		The same as splice-from-list, but takes a perdefined number of items from the stack 
 		as the list to be spliced in:  program num -> program
@@ -132,17 +135,17 @@ DEFINE
 	key-predicate == [get-key] [=] enconcat;
 	
 	(* 
-		Takes a map and a string key and tries to find the occurence of the key in the map: map key -> value.
+		Takes a map and a keyword key and tries to find the occurence of the key in the map: map key -> value.
 		The map has the following structure: [[key1 value1] [key2 value2] ...]
 		Where each value can be anything and and the key is a Joy word converted to a string using "name".
 		The function assumes that the key is present in the map.
 	*)
 	find-by-key == 
-		key-predicate filter 
+		name key-predicate filter 
 		first get-value;	
 		
-	# checks whether a string key is present in a map: map key -> boolean.
-	key-in-map == key-predicate some;
+	# checks whether a keyword is present in a map: map key -> boolean.
+	key-in-map == name key-predicate some;
 	
 	(*
 		Replacing all occurrences of the pattern "X" (where X is a keyword) in 
@@ -156,12 +159,28 @@ DEFINE
 		[1 "two" 3 "four" "f" "ive" concat 6 7]
 	*)
 	splice-from-map == [ 
-		[name key-in-map] 
-		[name find-by-key] 
+		[key-in-map] 
+		[find-by-key] 
 		[]
 		ifte
 	] treemap-concat popd i;
 	
+	(*
+		The same as but evaluates the map arguments before splicing them in.
+		So this:
+		[[four "four"] [two "two"] [five "f" "ive" concat]] [four  [1 two 3] [five 6 7] enconcat] splice-from-map-eval.
+		becomes:
+		[1 "two" 3 "four" "five" 6 7]
+	*)
+	splice-from-map-eval == [ 
+		[key-in-map] 
+		[find-by-key i] 
+		[]
+		ifte
+	] treemap popd i;
+	
+	# the function upon which the let-map... functions are based
+	let-map-base == [first] [rest] cleave;
 	(*
 		The sake as splice-from-map with the input map and program joined into a single argument: [map program] -> result-of-program.
 		Note that the program should not be quoted.
@@ -173,7 +192,10 @@ DEFINE
 		 four  [1 two 3] [five 6 7] enconcat
 		 ] let-map.
 	*)
-	let-map ==  [first] [rest] cleave splice-from-map;
+	let-map == let-map-base splice-from-map;
+	
+	# The same as let-map but based on splice-from-map-eval.
+	let-map-eval == let-map-base splice-from-map-eval;
 	
 	(*
 		Same as let-map, but optionally allows stack splicing patterns as in splice-from-stack-max: [map program] -> result-of-program.
@@ -187,11 +209,20 @@ DEFINE
 	*)
 	let == splice-from-stack-max let-map;
 	
+	# the same as let but based on let-map-eval
+	let-eval == splice-from-stack-max let-map-eval;
+	
 	(*
-		Converts a list into a map, where each item in the list is mapped to an indexed splice pattern: list -> map.
-		Example: [a b c] list-to-splice # => [[c ~2] [b ~1] [a ~0]]
+		Converts a list into a map, where each item in the list is mapped to an item at that position on the stack: list -> map.
+		Example: 1 2 3 [a b c] list-to-splice # => [[a 1] [b 2] [c 3]]
 	*)
-	list-to-splice == 
+	list-to-splice == [
+		[[ls ~0] [ls-len ~0 size]]
+		[[[stack ls-len take-from-stack]]
+			ls-len indices [[ls of] [stack of] cleave tuple] map
+		] let-eval
+	] let;
+	(*
 		[[] 0] 
 		[[
 			[[new-list ~0 first] [index ~0 second] [cur ~1]] 
@@ -200,7 +231,7 @@ DEFINE
 			index succ tuple
 		] let] 
 		fold first;
-	
+	*)
 	(*
 		Like let but infers the keyword values from the stack: [list program] -> result-of-program.
 		So this:
