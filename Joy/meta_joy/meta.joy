@@ -132,17 +132,18 @@ DEFINE
 	key-predicate == [get-key] [=] enconcat;
 	
 	(* 
-		Takes a map and a string key and tries to find the occurence of the key in the map: map key -> value.
+		Takes a map and a symbol key and tries to find the occurence of the key in the map: map key -> value.
 		The map has the following structure: [[key1 value1] [key2 value2] ...]
 		Where each value can be anything and and the key is a Joy word converted to a string using "name".
 		The function assumes that the key is present in the map.
 	*)
 	find-by-key == 
+		name
 		key-predicate filter 
 		first get-value;	
 		
-	# checks whether a string key is present in a map: map key -> boolean.
-	key-in-map == key-predicate some;
+	# checks whether a symbol key is present in a map: map key -> boolean.
+	key-in-map == name key-predicate some;
 	
 	(*
 		Replacing all occurrences of the pattern "X" (where X is a symbol) in 
@@ -156,8 +157,8 @@ DEFINE
 		[1 "two" 3 "four" "f" "ive" concat 6 7]
 	*)
 	splice-from-map == [ 
-		[name key-in-map] 
-		[name find-by-key] 
+		[key-in-map] 
+		[find-by-key] 
 		[]
 		ifte
 	] treemap-concat popd i;
