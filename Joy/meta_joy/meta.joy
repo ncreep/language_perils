@@ -166,6 +166,22 @@ DEFINE
 	] treemap-concat popd i;
 	
 	(*
+		The same as but evaluates the map arguments before splicing them in.
+		So this:
+		[[four "four"] [two "two"] [five "f" "ive" concat]] [four  [1 two 3] [five 6 7] enconcat] splice-from-map-eval.
+		becomes:
+		[1 "two" 3 "four" "five" 6 7]
+	*)
+	splice-from-map-eval == [ 
+		[key-in-map] 
+		[find-by-key i] 
+		[]
+		ifte
+	] treemap popd i;
+	
+	# the function upon which the let-map... functions are based
+	let-map-base == [first] [rest] cleave;
+	(*
 		The sake as splice-from-map with the input map and program joined into a single argument: [map program] -> result-of-program.
 		Note that the program should not be quoted.
 		So this code is equivalent to the example in splice-from-map:
@@ -176,7 +192,10 @@ DEFINE
 		 four  [1 two 3] [five 6 7] enconcat
 		 ] let-map.
 	*)
-	let-map == [first] [rest] cleave splice-from-map;
+	let-map == let-map-base splice-from-map;
+	
+	# The same as let-map but based on splice-from-map-eval.
+	let-map-eval == let-map-base splice-from-map-eval;
 	
 	(*
 		Same as let-map, but optionally allows stack splicing patterns as in splice-from-stack-max: [map program] -> result-of-program.
@@ -190,16 +209,18 @@ DEFINE
 	*)
 	let == splice-from-stack-max let-map;
 	
+	# the same as let but based on let-map-eval
+	let-eval == splice-from-stack-max let-map-eval;
+	
 	(*
 		Converts a list into a map, where each item in the list is mapped to an item at that position on the stack: list -> map.
 		Example: 1 2 3 [a b c] list-to-splice # => [[a 1] [b 2] [c 3]]
 	*)
 	list-to-splice == [
 		[[ls ~0] [ls-len ~0 size]]
-		[[[stack [ls-len take-from-stack] dip swap]]
+		[[[stack ls-len take-from-stack]]
 			ls-len indices [[ls of] [stack of] cleave tuple] map
-			[ls-len [pop] times] dip
-		] let
+		] let-eval
 	] let;
 	(*
 		[[] 0] 
