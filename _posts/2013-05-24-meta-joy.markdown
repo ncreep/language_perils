@@ -12,6 +12,9 @@ To do that, we'll have to recap one of the Joy basics, namely, its homoiconicity
 ```
 [1 2] [+] concat i # => 3
 ```
+
+<!-- more -->
+
 (`i` evaluates the list as a program)
 
 As a real program may be an arbitrarily nested list, manipulating it won't be that simple. Say I want to turn this piece of code `[1 [2 3 +] *]` into `[1 [2 3 *] *]`. I can do this manually like so:
