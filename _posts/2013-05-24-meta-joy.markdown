@@ -1,0 +1,222 @@
+---
+layout: post
+title: "Meta-Joy"
+date: 2013-05-24 14:34
+comments: true
+categories: [Joy, stack-based, concatenative, metaprogramming]
+---
+
+In the [previous post]({% post_url 2013-04-21-joyous-tree-friends %}) I was struggling with the noise generated in my code by stack manipulation related functions. Having reached a dead end, I promised you a shiny new direction, which I'll be introducing in this post.
+
+To do that, we'll have to recap one of the Joy basics, namely, its homoiconicity. In the [introduction]({% post_url 2013-03-18-the-joy-of-joy %}) I mentioned how Joy's list primitive is actually a quoted program; this should be familiar if you're acquainted with Lisp lists. So... we can easily go meta on the language by employing list manipulation. Here's a simple example to illustrate the point:
+```
+[1 2] [+] concat i # => 3
+```
+(`i` evaluates the list as a program)
+
+As a real program may be an arbitrarily nested list, manipulating it won't be that simple. Say I want to turn this piece of code `[1 [2 3 +] *]` into `[1 [2 3 *] *]`. I can do this manually like so:
+```
+[1 [2 3 +] *] dup
+1 at         # => [2 3 +]
+2 take       # => [2 3]
+[*] concat   # => [2 3 *]
+1 insert-at. # => [1 [2 3 *] *]
+```
+(which assumes the availability of the `insert-at` function we were messing about with the last time)
+
+And obviously, this approach is too clumsy to scale up to any real use case. What we need is some generic way to find and replace bits of lists with other bits. To do this, I'll introduce yet another step in the meta direction. In the standard library we have the `name` function, which takes a symbol, e.g. a non literal item in a list, and returns its name as a string, like so:
+```
+[foo bar baz] [name] map # => ["foo" "bar" "baz"]
+```
+
+Armed with this function we can treat quoted programs as lists of strings, and do any sort of string manipulation we may want with it (we also have the inverse of `name` - `intern`, which takes a string and returns a symbol). And how is this useful in our quest for list manipulation nirvana? It means that we can treat finding and replacing of program parts as finding and replacing (splicing) strings in a list, and that's a rather down-to-earth non-meta operation.
+
+Inspired by Lisp macros, I decided to implement a splicing scheme illustrated by this example:
+```
+["two" "four" "five"] [[1 ~0 3] [~1 ~2] concat] splice-from-list # => [[1 "two" 3] ["four" "five"] concat]
+```
+
+The first list is the argument list and the second is the target program skeleton. Each `~X` symbol is treated as an index `X` in the argument list. Upon application of the `splice-from-list` function, each occurrence of the `~X` pattern is replaced by the corresponding item in the argument list.
+
+The code for the implementation is in the [repository](https://github.com/ncreep/language_perils) in the [meta.joy](https://github.com/ncreep/language_perils/blob/master/Joy/meta_joy/meta.joy) file; let's look at it:
+```
+splice-from-list == [ 
+	[is-num-splice-pattern] 
+	[splice-to-num at] 
+	[]
+	ifte
+] treemap popd;
+```
+
+The function `treemap` does most of the heavy lifting. `treemap` takes a tree (which is an arbitrarily nested list where each non list value is treated as a leaf) and applies a given function to each leaf; it is rather simple to implement using the built-in `treerec` combinator. In our case the tree is the program skeleton, its symbols are the leaves and the function to be applied is the `ifte`  expression. The `ifte`  expression checks whether a symbol matches the splicing pattern (`is-num-splice-pattern`), if so, converts it to a number (`splice-to-num`) and fetches the corresponding list item, otherwise, leaves it as is. It's in the `is-num-splice-pattern` and `splice-to-num` functions that we rely on our ability to treat symbols as text.
+
+It is important to note that the `~X` patterns don't have any special significance in Joy, they are just valid identifiers. Trying to evaluate a piece of code that contains them without any replacement will probably result in an error, as they won't have any predefined meaning.
+
+Because we are after a more convenient way to write functions, a more likely scenario is to splice values directly from the stack, so we have
+```
+splice-from-stack ==  swap [take-from-stack] dip splice-from-list;
+```
+
+where `take-from-stack` takes a fixed number of items from the stack and places them in a list. Now we can write
+```
+"two" "four" "five" [[1 ~0 3] [~1 ~2] concat] 3 splice-from-stack # => [[1 "two" 3] ["four" "five"] concat]
+```
+Note how the `"two" "four" "five"` items are on the stack and not in a list. In most cases it may feel redundant to write the number of items to take from the stack, it is evident from the maximal value of `X` in the different `~X` patterns, so we define
+```
+splice-from-stack-max == [max-splice-num 1 +] nullary splice-from-stack;
+```
+And the final product:
+```
+splice == splice-from-stack-max i;
+```
+
+which actually evaluates the resulting program, as in
+```
+"two" "four" "five" [[1 ~0 3] [~1 ~2] concat] splice # => [1 "two" 3 "four" "five"]
+```
+
+Now we are ready for a first attempt at rewriting the `insert-at` function from the [previous post]({% post_url 2013-04-21-joyous-tree-friends %}) using our cool new metaprogramming techniques. First let's recall the original function:
+
+```
+# inserts an item at a given position, deleting the previous item: list val index -> list
+insert-at == 
+	swapd dupd dup swapd
+	take rollup
+	1 + drop
+	enconcat;
+```
+
+And here's the new version:
+```
+insert-at == [
+	~1
+	~0 ~2 take
+	~0 ~2 1 + drop
+	enconcat
+] splice;
+```
+
+Success! We have no stack primitives visible in the code. But... I'm not quite satisfied with the fact that the function arguments don't have explicit names. You see, I have this issue, I like naming things: variables, functions, babies, you name it. I mean, I name it, that is, I will name it once you give me the thing. As Joy is devoid of either variables or babies, the only thing left to name is functions, and the only way to do this is to include them in a top level `DEFINE`, so we can't have function local definitions (something along the lines of Lisp's `let` definitions). 
+
+Splicing to the rescue. Instead of splicing from a list (or the stack) we can do the splicing from a map, like so:
+```
+[[four "four"] [two "two"] [five "f" "ive" concat]] 
+[four  [1 two 3] [five 6 7] enconcat]
+splice-from-map # => [1 "two" 3 "four" "f" "ive" concat 6 7]
+```
+
+The first nested list is treated as a map, where each entry is another list. In each entry the first symbol is treated as a key and the rest as the value. The second list is the program skeleton, where we replace every occurrence of a symbol that appears in the map with the value it is mapped to. The corresponding implementation:
+```
+splice-from-map == [ 
+	[key-in-map] 
+	[find-by-key] 
+	[]
+	ifte
+] treemap-concat popd i;
+```
+which is quite similar to `splice-from-list`. Instead of looking for `~X` patterns we look for items that appear in our map. Instead of fetching from a list we fetch from a map. The last difference is that instead of mapping with `treemap` we use `treemap-concat`, which maps a function that takes a leaf and results in a list, the resulting list is merged into the tree instead of the original leaf. The reason we need that, is to be able to use multiple symbols as values in the map (like `"f" "ive" concat` in the example). The implementation of `treemap-concat` was a bit tricky to get right at 4 a.m., I'll leave the figuring out how it works as an exercise.
+
+To slightly simplify the usage of `splice-from-map` we'll allow to join the map and program skeleton into a single list, as in:
+```
+[[[plus +] 
+  [square dup *]] 
+  3 2 plus square		  
+ ] let-map # => 25
+```
+
+The definition of `let-map`:
+```
+let-map ==  [first] [rest] cleave splice-from-map;
+```
+
+And now we have a simple implementation of local definitions. To make this more usable in the context of naming function arguments, we'll compose this with stack splicing:
+```
+let == splice-from-stack-max let-map;
+```
+
+Using `let` we can rewrite the `insert-at` function as:
+```
+insert-at == [
+    [[list ~0] [val ~1] [index ~2]]
+    	val
+    	list index take
+    	list index 1 + drop
+    	enconcat
+] let;
+```
+
+The combination of list and map splicing acts somewhat like named arguments in regular languages. It is definitely more explicit than the previous version, but I find it a bit clumsy to write. In simple cases where we only need items from the stack without any transformations we can use this function:
+```
+let-splice == [first list-to-splice] [rest] cleave cons let;
+```
+
+Instead of taking a map like `let` it takes a list of symbols, it then converts the list into a map where the symbols are the keywords and consecutive `~X` patterns are the values (`list-to-splice`). With this we reach our final version of `insert-at`:
+```
+insert-at == [
+    [list val index]
+    	val
+    	list index take
+    	list index 1 + drop
+    	enconcat
+] let-splice;
+```
+The first line of the definition declares the arguments, saying: "I'll need three arguments from the stack, and I'll be using these names for them". `let-splice` does the magic of figuring out the mapping between the arguments and the values on the stack. This syntax is less flexible than `let`, as we can only name values from the stack and not any other expression. But I think it works well in this example, yielding the most readable code thus far.
+
+As you may remember, but probably don't, this whole quest for stack manipulation cleansing started out with my wish to write a readable version of the `build-tree-with-value` function, which traverses a tree looking for a value and uses a pair of functions to handle success or failure. In pseudocode it looked like this:
+```
+build-tree-with-value == [
+    [ [empty-tree] [empty-handler] ]
+    [ [value =] [value-handler] ]
+    
+    [ [value <] [set-left-tree-for-recursion] [insert-new-left-tree] ]
+    [           [set-right-tree-for-recursion] [insert-new-right-tree] ]
+] condlinrec
+```
+
+And to remind you of the atrocity you had to go through last time, heeere's Johnny:
+```
+build-tree-with-value == rollup swap [
+	[ [empty-tree] [rolldown dup 0 at rollupd i] ]
+	[ [value =] [rolldown dup 1 at rollupd i] ]
+		
+	[ [value <] [dup left-tree rollupd] [swapd insert-left] ]
+	[           [dup right-tree rollupd] [swapd insert-right] ]
+] condlinrec popd
+``` 
+
+You can open your eyes now, I won't be doing that again. Can our new meta-power-tools help us alleviate the pain? It so happens that yes, they definitely can. Here's Johnny reformed:
+```
+build-tree-with-value == [ 
+	[val empty-handler val-handler] [
+		[ [empty-tree]  [val empty-handler i] ]
+		[ [value val =] [val val-handler i] ]
+		
+		[ [value val >] [_left-tree] [insert-left] ]
+		[           	[_right-tree] [insert-right] ]
+] condlinrec] let-splice;
+```
+
+The original algorithm was slightly modified to make this more readable. Namely, the value being searched for is not passed around, it is wired into the skeleton of the code; this affects the signature of the handler functions which is now `tree value -> tree`. It also inverts the comparison sign in the last predicate. The full new implementation can be found [here](https://github.com/ncreep/language_perils/blob/master/Joy/bin_tree/Trees2.joy). 
+
+I actually wasn't expecting that much similarity to the pseudocode, I wrote it long before I had a readable version of `build-tree-with-value`. And what's more important is that we are using a generic solution, not something tailor made for this particular problem. Another thing I quite like about this solution is how natural it was to build it in incremental steps: write a function, compose it with another one to refine it, rinse and repeat. That's a general property of Joy (and probably any other concatenative language), making it easy to write simple, bite-size, pieces of code.
+
+Now, one might expect me to go OCD on the rest of my binary tree implementation, and prune out as much of the remaining stack manipulation bits as possible, but I won't be doing that. No, seriously, not going to bother, I'm totally fine with how it is...
+
+There are some reservations about my meta solution, though. First off, the implementation is far from being complete. The `let`/`splice` expressions cannot be properly nested in all cases, e.g.:
+```
+[[[a 2]] [[[a 3]] a 4 *] let] let # => 9
+[[[a dup dup]] [[[a pop]] 4 a] let] let # => 4
+```
+
+And you can't make a definition and use it in the same map, so this is not valid:
+```
+[[[a dup] [b a pop]] 4 b] let
+```
+
+Bearing in mind that the whole implementation is ~70 LOC (no, that's not a leftover splicing pattern, and no, I'm not using a Joy based templating engine), that's probably not so bad. Fixing these issues shouldn't be too complicated, but what we have should suffice as a proof of concept.
+
+A completely different issue is performance related, though performance is of little significance to me in this case; it seems that using this kind of metaprogramming really stresses-out the GC. Running the new tree implementation on the usual Joy interpreter (the one you're likely to compile if you're fetching it from the [Joy site](http://www.kevinalbrecht.com/code/joy-mirror/joy.html), it has "NOBDW" in its title) crashes when trying to insert around 4 items. To circumvent the problem I used the Joy interpreter compiled with the BDW GC (there's a special `make` file for that purpose). This fixes the issue, and you can easily insert more than 100 items in either implementation. Though the metaprogramming implementation is still considerably slower.
+
+But the most important issue, in my opinion, is that it feels as if I'm trying to shoehorn my approach to programming into Joy's. In this whole exercise I'm essentially trying to emulate named function arguments, which is one of the things that Joy seems to purposefully avoid. My feeling is that there must exist somewhere "The Joy Way (TM)", that would allow me to achieve the same level of readability without resorting to metaprogramming tricks. On the other hand, the fact that it was that simple to achieve this goal might be an indicator that maybe this approach was not an act of complete heresy. Any insight on this issue will be greatly appreciated.
+
+Anyways, this concludes our excursion into the green lands of meta-trees. Stay tuned for next time.
