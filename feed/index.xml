@@ -4,7 +4,7 @@
   <title><![CDATA[Language Perils]]></title>
   <link href="http://ncreep.github.io/language_perils/feed" rel="self"/>
   <link href="http://ncreep.github.io/language_perils/"/>
-  <updated>2013-05-19T06:56:30+03:00</updated>
+  <updated>2013-06-04T18:07:17+03:00</updated>
   <id>http://ncreep.github.io/language_perils/</id>
   <author>
     <name><![CDATA[Daniel Beskin]]></name>
@@ -12,6 +12,326 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Meta-Joy]]></title>
+    <link href="http://ncreep.github.io/language_perils/blog/2013-05-24-meta-joy.html"/>
+    <updated>2013-05-24T14:34:00+03:00</updated>
+    <id>http://ncreep.github.io/language_perils/blog/meta-joy</id>
+    <content type="html"><![CDATA[<p>In the <a href="http://ncreep.github.io/language_perils/blog/2013-04-21-joyous-tree-friends.html">previous post</a> I was struggling with the noise generated in my code by stack manipulation-related functions. Having reached a dead end, I promised you a shiny new direction, which I&#8217;ll be introducing in this post.</p>
+
+<p>To do that, we&#8217;ll have to recap one of the Joy basics, namely, its homoiconicity. In the <a href="http://ncreep.github.io/language_perils/blog/2013-03-18-the-joy-of-joy.html">introduction</a>, I mentioned how Joy&#8217;s list primitive is actually a quoted program; this should be familiar if you&#8217;re acquainted with Lisp lists. So&#8230; we can easily go meta on the language by employing list manipulation. Here&#8217;s a simple example to illustrate the point:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[1 2] [+] concat i # =&gt; 3</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!-- more -->
+
+
+<p>(<code>i</code> evaluates the list as a program)</p>
+
+<p>As a real program may be an arbitrarily nested list, manipulating it won&#8217;t be that simple. Say I want to turn this piece of code <code>[1 [2 3 +] *]</code> into <code>[1 [2 3 *] *]</code>. I can do this manually like so:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[1 [2 3 +] *] dup
+</span><span class='line'>1 at         # =&gt; [2 3 +]
+</span><span class='line'>2 take       # =&gt; [2 3]
+</span><span class='line'>[*] concat   # =&gt; [2 3 *]
+</span><span class='line'>1 insert-at. # =&gt; [1 [2 3 *] *]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(which assumes the availability of the <code>insert-at</code> function we were messing about with the last time)</p>
+
+<p>And obviously, this approach is too clumsy to scale up to any real use case. What we need is some generic way to find and replace bits of lists with other bits. To do this, I&#8217;ll introduce yet another step in the meta direction. In the standard library, we have the <code>name</code> function, which takes a symbol, e.g. a non-literal item in a list, and returns its name as a string, like so:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[foo bar baz] [name] map # =&gt; ["foo" "bar" "baz"]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Armed with this function, we can treat quoted programs as lists of strings, and do any sort of string manipulation we may want with it (we also have the inverse of <code>name</code> - <code>intern</code>, which takes a string and returns a symbol). And how is this useful in our quest for list manipulation nirvana? It means that we can treat finding and replacing of program parts as finding and replacing (splicing) strings in a list, and that&#8217;s a rather down-to-earth non-meta operation.</p>
+
+<p>Inspired by Lisp macros, I decided to implement a splicing scheme illustrated by this example:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>["two" "four" "five"] [[1 ~0 3] [~1 ~2] concat] splice-from-list # =&gt; [[1 "two" 3] ["four" "five"] concat]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The first list is the argument list and the second is the target program skeleton. Each <code>~X</code> symbol is treated as an index <code>X</code> in the argument list. Upon application of the <code>splice-from-list</code> function, each occurrence of the <code>~X</code> pattern is replaced by the corresponding item in the argument list.</p>
+
+<p>The code for the implementation is in the <a href="https://github.com/ncreep/language_perils">repository</a> in the <a href="https://github.com/ncreep/language_perils/blob/master/Joy/meta_joy/meta.joy">meta.joy</a> file; let&#8217;s look at it:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>splice-from-list == [ 
+</span><span class='line'>  [is-num-splice-pattern] 
+</span><span class='line'>  [splice-to-num at] 
+</span><span class='line'>  []
+</span><span class='line'>  ifte
+</span><span class='line'>] treemap popd;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The function <code>treemap</code> does most of the heavy lifting. <code>treemap</code> takes a tree (which is an arbitrarily nested list where each non-list value is treated as a leaf) and applies a given function to each leaf; it is rather simple to implement using the built-in <code>treerec</code> combinator. In our case, the tree is the program skeleton, its symbols are the leaves and the function to be applied is the <code>ifte</code>  expression. The <code>ifte</code>  expression checks whether a symbol matches the splicing pattern (<code>is-num-splice-pattern</code>). If it does, the <code>ifte</code>  expression converts it to a number (<code>splice-to-num</code>) and fetches the corresponding list item, otherwise, it leaves it as is. It&#8217;s in the <code>is-num-splice-pattern</code> and <code>splice-to-num</code> functions that we apply our ability to treat symbols as text.</p>
+
+<p>It is important to note that the <code>~X</code> patterns don&#8217;t have any special significance in Joy; they are just valid identifiers. Trying to evaluate a piece of code that contains them without any replacement will probably result in an error, as they won&#8217;t have any predefined meaning.</p>
+
+<p>Because we are after a more convenient way to write functions, a more likely scenario is to splice values directly from the stack, so we have</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>splice-from-stack ==  swap [take-from-stack] dip splice-from-list;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>where <code>take-from-stack</code> takes a fixed number of items from the stack and places them in a list. Now we can write</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"two" "four" "five" [[1 ~0 3] [~1 ~2] concat] 3 splice-from-stack # =&gt; [[1 "two" 3] ["four" "five"] concat]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note how the <code>"two" "four" "five"</code> items are on the stack and not in a list. In most cases, it may feel redundant to write the number of items to take from the stack, it is evident from the maximal value of <code>X</code> in the different <code>~X</code> patterns, so we define</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>splice-from-stack-max == [max-splice-num 1 +] nullary splice-from-stack;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the final product:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>splice == splice-from-stack-max i;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>which actually evaluates the resulting program, as in</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"two" "four" "five" [[1 ~0 3] [~1 ~2] concat] splice # =&gt; [1 "two" 3 "four" "five"]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we are ready for a first attempt at rewriting the <code>insert-at</code> function from the <a href="http://ncreep.github.io/language_perils/blog/2013-04-21-joyous-tree-friends.html">previous post</a> using our cool new metaprogramming techniques. First, let&#8217;s recall the original function:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># inserts an item at a given position, deleting the previous item: list val index -&gt; list
+</span><span class='line'>insert-at == 
+</span><span class='line'>  swapd dupd dup swapd
+</span><span class='line'>  take rollup
+</span><span class='line'>  1 + drop
+</span><span class='line'>  enconcat;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And here&#8217;s the new version:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>insert-at == [
+</span><span class='line'>  ~1
+</span><span class='line'>  ~0 ~2 take
+</span><span class='line'>  ~0 ~2 1 + drop
+</span><span class='line'>  enconcat
+</span><span class='line'>] splice;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Success! We have no stack primitives visible in the code. But&#8230; I&#8217;m not quite satisfied with the fact that the function arguments don&#8217;t have explicit names. You see, I have this issue, I like naming things: variables, functions, babies, you name it. I mean, I name it, that is, I will name it once you give me the thing. As Joy is devoid of either variables or babies, the only thing left to name is functions, and the only way to do this is to include them in a top level <code>DEFINE</code>, so we can&#8217;t have function-local definitions (something along the lines of Lisp&#8217;s <code>let</code> definitions).</p>
+
+<p>Splicing to the rescue. Instead of splicing from a list (or the stack), we can do the splicing from a map, like so:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[[four "four"] [two "two"] [five "f" "ive" concat]] 
+</span><span class='line'>[four  [1 two 3] [five 6 7] enconcat]
+</span><span class='line'>splice-from-map # =&gt; [1 "two" 3 "four" "f" "ive" concat 6 7]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The first nested list is treated as a map where each entry is another list. In each entry, the first symbol is treated as a key and the rest as the value. The second list is the program skeleton, where we replace every occurrence of a symbol that appears in the map with the value it is mapped to. The corresponding implementation:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>splice-from-map == [ 
+</span><span class='line'>  [key-in-map] 
+</span><span class='line'>  [find-by-key] 
+</span><span class='line'>  []
+</span><span class='line'>  ifte
+</span><span class='line'>] treemap-concat popd i;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>which is quite similar to <code>splice-from-list</code>. Instead of looking for <code>~X</code> patterns, we look for items that appear in our map. Instead of fetching from a list, we fetch from a map. The last difference is that instead of mapping with <code>treemap</code> we use <code>treemap-concat</code>, which maps a function that takes a leaf and results in a list merged into the tree instead of the original leaf. The reason we need that is to be able to use multiple symbols as values in the map (like <code>"f" "ive" concat</code> in the example). The implementation of <code>treemap-concat</code> was a bit tricky to get right at 4 a.m., I&#8217;ll leave the figuring out how it works as an exercise.</p>
+
+<p>To slightly simplify the usage of <code>splice-from-map</code>, we&#8217;ll allow to join the map and program skeleton into a single list, as in:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[[[plus +] 
+</span><span class='line'>  [square dup *]] 
+</span><span class='line'>  3 2 plus square       
+</span><span class='line'> ] let-map # =&gt; 25</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The definition of <code>let-map</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>let-map ==  [first] [rest] cleave splice-from-map;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And now we have a simple implementation of local definitions. To make this more usable in the context of naming function arguments, we&#8217;ll compose this with stack splicing:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>let == splice-from-stack-max let-map;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Using <code>let</code> we can rewrite the <code>insert-at</code> function as:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>insert-at == [
+</span><span class='line'>    [[list ~0] [val ~1] [index ~2]]
+</span><span class='line'>      val
+</span><span class='line'>      list index take
+</span><span class='line'>      list index 1 + drop
+</span><span class='line'>      enconcat
+</span><span class='line'>] let;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The combination of list and map splicing acts somewhat like named arguments in regular languages. It is definitely more explicit than the previous version, but I find it a bit clumsy to write. In simple cases where we only need items from the stack without any transformations, we can use this function:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>let-splice == [first list-to-splice] [rest] cleave cons let;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Instead of taking a map like <code>let</code>, it takes a list of symbols and converts the list into a map where the symbols are the keywords and consecutive <code>~X</code> patterns are the values (<code>list-to-splice</code>). With this, we arrive at our final version of <code>insert-at</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>insert-at == [
+</span><span class='line'>    [list val index]
+</span><span class='line'>      val
+</span><span class='line'>      list index take
+</span><span class='line'>      list index 1 + drop
+</span><span class='line'>      enconcat
+</span><span class='line'>] let-splice;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The first line of the definition declares the arguments, saying: &#8220;I&#8217;ll need three arguments from the stack, and I&#8217;ll be using these names for them&#8221;. <code>let-splice</code> does the magic of figuring out the mapping between the arguments and the values on the stack. This syntax is less flexible than <code>let</code>, as we can only name values from the stack and not any other expression. But I think it works well in this example, yielding the most readable code thus far.</p>
+
+<p>As you may remember, but probably don&#8217;t, this whole quest for stack manipulation cleansing started out with my wish to write a readable version of the <code>build-tree-with-value</code> function, which traverses a tree looking for a value and uses a pair of functions to handle success or failure. In pseudocode it looked like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>build-tree-with-value == [
+</span><span class='line'>    [ [empty-tree] [empty-handler] ]
+</span><span class='line'>    [ [value =] [value-handler] ]
+</span><span class='line'>    
+</span><span class='line'>    [ [value &lt;] [set-left-tree-for-recursion] [insert-new-left-tree] ]
+</span><span class='line'>    [           [set-right-tree-for-recursion] [insert-new-right-tree] ]
+</span><span class='line'>] condlinrec</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And to remind you of the atrocity you had to go through last time, heeere&#8217;s Johnny:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>build-tree-with-value == rollup swap [
+</span><span class='line'>  [ [empty-tree] [rolldown dup 0 at rollupd i] ]
+</span><span class='line'>  [ [value =] [rolldown dup 1 at rollupd i] ]
+</span><span class='line'>      
+</span><span class='line'>  [ [value &lt;] [dup left-tree rollupd] [swapd insert-left] ]
+</span><span class='line'>  [           [dup right-tree rollupd] [swapd insert-right] ]
+</span><span class='line'>] condlinrec popd</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>You can open your eyes now, I won&#8217;t be doing that again. Can our new meta-power-tools help us alleviate the pain? It so happens that yes, they definitely can. Here&#8217;s Johnny reformed:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>build-tree-with-value == [ 
+</span><span class='line'>  [val empty-handler val-handler] [
+</span><span class='line'>      [ [empty-tree]  [val empty-handler i] ]
+</span><span class='line'>      [ [value val =] [val val-handler i] ]
+</span><span class='line'>      
+</span><span class='line'>      [ [value val &gt;] [_left-tree] [insert-left] ]
+</span><span class='line'>      [               [_right-tree] [insert-right] ]
+</span><span class='line'>] condlinrec] let-splice;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The original algorithm was slightly modified to make this more readable. Namely, the value being searched for is not passed around - it is wired into the skeleton of the code; this affects the signature of the handler functions, which is now <code>tree value -&gt; tree</code>. It also inverts the comparison sign in the last predicate. The full new implementation can be found <a href="https://github.com/ncreep/language_perils/blob/master/Joy/bin_tree/Trees2.joy">here</a>.</p>
+
+<p>I actually wasn&#8217;t expecting that much similarity to the pseudocode, I wrote it long before I had a readable version of <code>build-tree-with-value</code>. And what&#8217;s more important is that we are using a generic solution, not something tailor-made for this particular problem. Another thing I quite like about this solution is how natural it was to build it in incremental steps: write a function, compose it with another one to refine it, rinse and repeat. That&#8217;s a general property of Joy (and probably any other concatenative language), making it easy to write simple, bite-size pieces of code.</p>
+
+<p>Now, one might expect me to go OCD on the rest of my binary tree implementation, and prune out as much of the remaining stack manipulation bits as possible, but I won&#8217;t be doing that. No, seriously, not going to bother, I&#8217;m totally fine with how it is&#8230;</p>
+
+<p>There are some reservations about my meta solution, though. First off, the implementation is far from being complete. The <code>let</code>/<code>splice</code> expressions cannot be properly nested in all cases, e.g.:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[[[a 2]] [[[a 3]] a 4 *] let] let # =&gt; 9
+</span><span class='line'>[[[a dup dup]] [[[a pop]] 4 a] let] let # =&gt; 4</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And you can&#8217;t make a definition and use it in the same map, so this is not valid:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[[[a dup] [b a pop]] 4 b] let</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Bearing in mind that the whole implementation is ~70 LOC (no, that&#8217;s not a leftover splicing pattern, and no, I&#8217;m not using a Joy-based templating engine), that&#8217;s probably not so bad. Fixing these issues shouldn&#8217;t be too complicated, but what we have should suffice as a proof of concept.</p>
+
+<p>A completely different issue is performance related, though performance is of little significance to me in this case; it seems that using this kind of meta-programming really stresses out the GC. Running the new tree implementation on the usual Joy interpreter (the one you&#8217;re likely to compile if you&#8217;re fetching it from the <a href="http://www.kevinalbrecht.com/code/joy-mirror/joy.html">Joy site</a>, it has &#8220;NOBDW&#8221; in its title) crashes when trying to insert around 4 items. To circumvent the problem, I used the Joy interpreter compiled with the BDW GC (there&#8217;s a special <code>make</code> file for that purpose). This fixes the issue, and you can easily insert more than 100 items in either implementation, though the meta-programming implementation is still considerably slower.</p>
+
+<p>But the most important issue, in my opinion, is that it feels as if I&#8217;m trying to shoehorn my approach to programming into Joy&#8217;s. In this whole exercise, I&#8217;m essentially trying to emulate named function arguments, which is one of the things that Joy seems to purposefully avoid. My feeling is that there must exist somewhere &#8220;The Joy Way (TM)&#8221;, which would allow me to achieve the same level of readability without resorting to metaprogramming tricks. On the other hand, the fact that it was that simple to achieve this goal might be an indicator that maybe this approach was not an act of complete heresy. Any insight on this issue will be greatly appreciated.</p>
+
+<p>Anyways, this concludes our excursion into the green lands of meta-trees. Stay tuned for the next time.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Joyous Tree Friends]]></title>
@@ -254,7 +574,7 @@ For the sport of it, let&#8217;s try to follow the definition.</p>
 
 <p>Ignoring the surrounding <code>splice-from-stack</code> call, we&#8217;ve managed to remove all stack related manipulation. The cost, so it seems, is that we introduced something that looks like custom syntax.</p>
 
-<p>To be continued&#8230;</p>
+<p><a href="http://ncreep.github.io/language_perils/blog/2013-05-24-meta-joy.html">To be continued</a>&#8230;</p>
 ]]></content>
   </entry>
   

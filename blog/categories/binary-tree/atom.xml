@@ -4,7 +4,7 @@
   <title><![CDATA[Category: binary tree | Language Perils]]></title>
   <link href="http://ncreep.github.io/language_perils/blog/categories/binary-tree/atom.xml" rel="self"/>
   <link href="http://ncreep.github.io/language_perils/"/>
-  <updated>2013-05-19T06:56:30+03:00</updated>
+  <updated>2013-06-04T18:07:17+03:00</updated>
   <id>http://ncreep.github.io/language_perils/</id>
   <author>
     <name><![CDATA[Daniel Beskin]]></name>
@@ -186,7 +186,7 @@ insert-at == [
 ```
 Ignoring the surrounding `splice-from-stack` call, we've managed to remove all stack related manipulation. The cost, so it seems, is that we introduced something that looks like custom syntax.
 
-To be continued...
+[To be continued](/blog/2013-05-24-meta-joy.html)...
 ]]></content>
   </entry>
   
