@@ -6,12 +6,15 @@ comments: true
 categories: [Joy, stack-based, concatenative, metaprogramming]
 ---
 
-In the [previous post]({% post_url 2013-04-21-joyous-tree-friends %}) I was struggling with the noise generated in my code by stack manipulation-related functions. Having reached a dead end, I promised you a new shining path, which I'll be introducing in this post.
+In the [previous post]({% post_url 2013-04-21-joyous-tree-friends %}) I was struggling with the noise generated in my code by stack manipulation-related functions. Having reached a dead end, I promised you a shiny new direction, which I'll be introducing in this post.
 
 To do that, we'll have to recap one of the Joy basics, namely, its homoiconicity. In the [introduction]({% post_url 2013-03-18-the-joy-of-joy %}), I mentioned how Joy's list primitive is actually a quoted program; this should be familiar if you're acquainted with Lisp lists. So... we can easily go meta on the language by employing list manipulation. Here's a simple example to illustrate the point:
 ```
 [1 2] [+] concat i # => 3
 ```
+
+<!-- more -->
+
 (`i` evaluates the list as a program)
 
 As a real program may be an arbitrarily nested list, manipulating it won't be that simple. Say I want to turn this piece of code `[1 [2 3 +] *]` into `[1 [2 3 *] *]`. I can do this manually like so:
@@ -217,6 +220,6 @@ Bearing in mind that the whole implementation is ~70 LOC (no, that's not a lefto
 
 A completely different issue is performance related, though performance is of little significance to me in this case; it seems that using this kind of meta-programming really stresses out the GC. Running the new tree implementation on the usual Joy interpreter (the one you're likely to compile if you're fetching it from the [Joy site](http://www.kevinalbrecht.com/code/joy-mirror/joy.html), it has "NOBDW" in its title) crashes when trying to insert around 4 items. To circumvent the problem, I used the Joy interpreter compiled with the BDW GC (there's a special `make` file for that purpose). This fixes the issue, and you can easily insert more than 100 items in either implementation, though the meta-programming implementation is still considerably slower.
 
-But the most important issue, in my opinion, is that it feels as if I'm trying to shoehorn my approach to programming into Joy's. In this whole exercise, I'm essentially trying to emulate named function arguments, which is one of the things that Joy seems to purposefully avoid. My feeling is that there must exist somewhere "The Joy Way (TM)", whichwould allow me to achieve the same level of readability without resorting to metaprogramming tricks. On the other hand, the fact that it was that simple to achieve this goal might be an indicator that maybe this approach was not an act of complete heresy. Any insight on this issue will be greatly appreciated.
+But the most important issue, in my opinion, is that it feels as if I'm trying to shoehorn my approach to programming into Joy's. In this whole exercise, I'm essentially trying to emulate named function arguments, which is one of the things that Joy seems to purposefully avoid. My feeling is that there must exist somewhere "The Joy Way (TM)", which would allow me to achieve the same level of readability without resorting to metaprogramming tricks. On the other hand, the fact that it was that simple to achieve this goal might be an indicator that maybe this approach was not an act of complete heresy. Any insight on this issue will be greatly appreciated.
 
 Anyways, this concludes our excursion into the green lands of meta-trees. Stay tuned for the next time.
