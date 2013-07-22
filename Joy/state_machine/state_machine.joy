@@ -1,0 +1,68 @@
+"../meta_joy/meta.joy" include.
+DEFINE 
+
+state-value == 0 at;
+is-final-state == 1 at;
+next-state == 2 at;
+
+# moves the first element from one list into a list pair with the second: [x rest] ls -> [rest] [ls x]
+move-first == swap 
+	[null] [swap [] cons] 
+	[[rest] [first] cleave swapd [] cons cons] 
+	ifte;
+#move-first == swap [rest] [first] cleave swapd swons;
+
+# runs a state against an input list: input stack state -> final-state-value
+(*
+run-state-from-stack == [is-final-state] [state-value] [
+	[[input stack state]
+		stack state
+		[input null] [next-state-no-input] [next-state-with-input] ifte
+		infra
+		[rest] [first] cleave
+	] let-splice;
+] tailrec;
+*)
+ 
+run-state-from-stack == [is-final-state] [popd popd state-value] [
+	[move-first] dip
+	next-state i # input [stack value] -> input new-stack new-state
+] tailrec;
+
+(* *)
+# runs a state from an input list and an empty stack: input state -> final state value
+run-state == [] swap run-state-from-stack;
+
+# manipulation of [stack value] pairs
+cur-stack == 0 at;
+input == 1 at;
+has-input == size 2 =;
+no-input == size 1 =; 
+empty-stack == cur-stack null;
+# updates the current stack value with the given function: [stack value] [f] -> [stack f value]
+update-stack == [dup cur-stack] dip app1 swap rest cons;
+
+fail == ["fail" true];
+success == ["success" true];
+zero == ["zero" false [zero-next]];
+one == ["one" false [one-next]];
+
+no-input-check == [empty-stack] [cur-stack success] [cur-stack fail] ifte;
+
+zero-next == [
+	[[no-input] no-input-check]
+	[[input '0 =] [input] [cur-stack] cleave cons zero]
+	[cur-stack one]
+] cond;
+
+one-next == 
+	[empty-stack] 
+	[cur-stack fail] 
+	[[rest] update-stack 
+	 [
+		[[no-input] no-input-check]
+		[[input '1 =] cur-stack one]
+		[cur-stack fail]
+	] cond] 
+ifte;
+.
