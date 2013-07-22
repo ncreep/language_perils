@@ -46,11 +46,12 @@ fail == ["fail" true];
 success == ["success" true];
 zero == ["zero" false [zero-next]];
 one == ["one" false [one-next]];
+no-input-state == ["no input" false [no-input-next]];
 
-no-input-check == [empty-stack] [cur-stack success] [cur-stack fail] ifte;
+no-input-next == [empty-stack] [cur-stack success] [cur-stack fail] ifte;
 
 zero-next == [
-	[[no-input] no-input-check]
+	[[no-input] cur-stack no-input-state]
 	[[input '0 =] [input] [cur-stack] cleave cons zero]
 	[cur-stack one]
 ] cond;
@@ -60,7 +61,7 @@ one-next ==
 	[cur-stack fail] 
 	[[rest] update-stack 
 	 [
-		[[no-input] no-input-check]
+		[[no-input] cur-stack no-input-state]
 		[[input '1 =] cur-stack one]
 		[cur-stack fail]
 	] cond] 
