@@ -28,6 +28,7 @@ run-state-from-stack == [is-final-state] [popd popd state-value] [
 	[move-first] dip
 	next-state i # input [stack value] -> input new-stack new-state
 ] tailrec;
+# dup [state-value] dip rollupd
 
 (* *)
 # runs a state from an input list and an empty stack: input state -> final state value
@@ -40,10 +41,14 @@ cur-stack == 0 at;
 input == 1 at;
 input-or-default == [has-input] [input] [[]] ifte;
 empty-stack == cur-stack null;
-# updates the current stack value with the given function: [stack value] [f] -> [stack f value]
-update-stack == [dup cur-stack] dip app1 swap rest cons;
+non-empty-stack == empty-stack not;
 # checks whether the main stack is empty
 no-stack == stack null;
+# checks whether the main stack is not empty
+has-stack == no-stack not;
+
+# same as cond, but without the default value
+condn == [[]] concat cond;
 
 stack-value-to-map == [[stack-value]
 	[[has-input stack-value has-input]
@@ -58,45 +63,23 @@ state-func ==
 
 fail == ["fail" true];
 success == ["success" true];
-zero == ["zero" false [zero-next]];
-one == ["one" false [one-next]];
-no-input-state == ["no input" false [no-input-next]];
+n-zero-ones == ["n-zero-ones" false [n-zero-ones-next]];
 
-no-input-next == [[no-stack] [success] [fail] ifte] state-func;
-
-zero-next == [[
-	[[no-input] no-input-state]
-	[[input '0 =] input zero]
-	[one]
-] cond] state-func;
-
-one-next == [
-	[no-stack] [fail] 
-	[pop 
-	 [[[no-input] no-input-state]
-	  [[input '1 =] one]
-	  [fail]
-	] cond] 
-ifte] state-func;
+n-zero-ones-next == [[
+	[[no-stack no-input and] success]
+	[[has-stack no-input and] fail]
+	[[input '0 =] input n-zero-ones]
+	[[has-stack input '1 = and] pop n-zero-ones]
+	[[no-stack input '1 = and] fail]
+] condn] state-func;
 
 (*
-no-input-next == [empty-stack] [cur-stack success] [cur-stack fail] ifte;
-
-zero-next == [
-	[[no-input] cur-stack no-input-state]
-	[[input '0 =] [input] [cur-stack] cleave cons zero]
-	[cur-stack one]
-] cond;
-
-one-next == 
-	[empty-stack] 
-	[cur-stack fail] 
-	[[rest] update-stack 
-	 [
-		[[no-input] cur-stack no-input-state]
-		[[input '1 =] cur-stack one]
-		[cur-stack fail]
-	] cond] 
-ifte;
+n-zero-ones-next == [
+	[[[empty-stack] [no-input] cleave and] cur-stack success]
+	[[[non-empty-stack] [no-input] cleave and] cur-stack fail]
+	[[input '0 =] [input] [cur-stack] cleave cons n-zero-ones]
+	[[[non-empty-stack] [input '1 =] cleave and] cur-stack rest n-zero-ones]
+	[[[empty-stack] [input '1 =] cleave and] cur-stack fail]
+] condn;
 *)
 .
