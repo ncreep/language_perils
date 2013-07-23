@@ -34,13 +34,27 @@ run-state-from-stack == [is-final-state] [popd popd state-value] [
 run-state == [] swap run-state-from-stack;
 
 # manipulation of [stack value] pairs
-cur-stack == 0 at;
-input == 1 at;
 has-input == size 2 =;
 no-input == size 1 =; 
+cur-stack == 0 at;
+input == 1 at;
+input-or-default == [has-input] [input] [[]] ifte;
 empty-stack == cur-stack null;
 # updates the current stack value with the given function: [stack value] [f] -> [stack f value]
 update-stack == [dup cur-stack] dip app1 swap rest cons;
+# checks whether the main stack is empty
+no-stack == stack null;
+
+stack-value-to-map == [[stack-value]
+	[[has-input stack-value has-input]
+	 [no-input stack-value no-input]
+	 [input stack-value input-or-default]]
+] let-splice;
+
+state-func == 
+	[[cur-stack] [stack-value-to-map] cleave] dip 
+	splice-from-map-no-eval infra
+	[rest] [first] cleave;
 
 fail == ["fail" true];
 success == ["success" true];
@@ -48,6 +62,24 @@ zero == ["zero" false [zero-next]];
 one == ["one" false [one-next]];
 no-input-state == ["no input" false [no-input-next]];
 
+no-input-next == [[no-stack] [success] [fail] ifte] state-func;
+
+zero-next == [[
+	[[no-input] no-input-state]
+	[[input '0 =] input zero]
+	[one]
+] cond] state-func;
+
+one-next == [
+	[no-stack] [fail] 
+	[pop 
+	 [[[no-input] no-input-state]
+	  [[input '1 =] one]
+	  [fail]
+	] cond] 
+ifte] state-func;
+
+(*
 no-input-next == [empty-stack] [cur-stack success] [cur-stack fail] ifte;
 
 zero-next == [
@@ -66,4 +98,5 @@ one-next ==
 		[cur-stack fail]
 	] cond] 
 ifte;
+*)
 .

@@ -145,6 +145,14 @@ DEFINE
 	# checks whether a symbol key is present in a map: map key -> boolean.
 	key-in-map == name key-predicate some;
 	
+	(* The same splice-from-map before application of the resulting program: map program -> program. *)
+	splice-from-map-no-eval == [ 
+		[key-in-map] 
+		[find-by-key] 
+		[]
+		ifte
+	] treemap-concat popd;
+	
 	(*
 		Replacing all occurrences of the pattern "X" (where X is a symbol) in 
 		an arbitrarily nested list with the X keyed items of a map, then applying
@@ -156,12 +164,7 @@ DEFINE
 		which results in:
 		[1 "two" 3 "four" "f" "ive" concat 6 7]
 	*)
-	splice-from-map == [ 
-		[key-in-map] 
-		[find-by-key] 
-		[]
-		ifte
-	] treemap-concat popd i;
+	splice-from-map == splice-from-map-no-eval i;
 	
 	(*
 		The sake as splice-from-map with the input map and program joined into a single argument: [map program] -> result-of-program.
