@@ -2,15 +2,14 @@
 DEFINE 
 
 state-value == 0 at;
-is-final-state == 1 at;
-next-state == 2 at;
+next-state == 1 at;
+is-final-state == 2 at;
 
 # moves the first element from one list into a list pair with the second: [x rest] ls -> [rest] [ls x]
 move-first == swap 
 	[null] [swap [] cons] 
 	[[rest] [first] cleave swapd [] cons cons] 
 	ifte;
-#move-first == swap [rest] [first] cleave swapd swons;
 
 # runs a state against an input list: input stack state -> final-state-value
 (*
@@ -42,10 +41,6 @@ input == 1 at;
 input-or-default == [has-input] [input] [[]] ifte;
 empty-stack == cur-stack null;
 non-empty-stack == empty-stack not;
-# checks whether the main stack is empty
-no-stack == stack null;
-# checks whether the main stack is not empty
-has-stack == no-stack not;
 
 # same as cond, but without the default value
 condn == [[]] concat cond;
@@ -53,7 +48,9 @@ condn == [[]] concat cond;
 stack-value-to-map == [[stack-value]
 	[[has-input stack-value has-input]
 	 [no-input stack-value no-input]
-	 [input stack-value input-or-default]]
+	 [input stack-value input-or-default]
+	 [empty-stack stack-value empty-stack]
+	 [non-empty-stack stack-value non-empty-stack]]
 ] let-splice;
 
 state-func == 
@@ -61,16 +58,16 @@ state-func ==
 	splice-from-map-no-eval infra
 	[rest] [first] cleave;
 
-fail == ["fail" true];
-success == ["success" true];
-n-zero-ones == ["n-zero-ones" false [n-zero-ones-next]];
+fail == ["fail" [] true];
+success == ["success" [] true];
+n-zero-ones == ["n-zero-ones" [n-zero-ones-next] false];
 
 n-zero-ones-next == [[
-	[[no-stack no-input and] success]
-	[[has-stack no-input and] fail]
+	[[empty-stack no-input and] success]
+	[[non-empty-stack no-input and] fail]
 	[[input '0 =] input n-zero-ones]
-	[[has-stack input '1 = and] pop n-zero-ones]
-	[[no-stack input '1 = and] fail]
+	[[non-empty-stack input '1 = and] pop n-zero-ones]
+	[[empty-stack input '1 = and] fail]
 ] condn] state-func;
 
 (*
