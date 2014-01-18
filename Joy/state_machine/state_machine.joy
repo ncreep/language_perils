@@ -19,17 +19,6 @@ move-first == swap
 	[[rest] [first] cleave swapd [] cons cons] 
 	ifte;
 
-(*
-run-state-from-stack == [is-final-state] [state-value] [
-	[[input stack state]
-		stack state
-		[input null] [next-state-no-input] [next-state-with-input] ifte
-		infra
-		[rest] [first] cleave
-	] let-splice;
-] tailrec;
-*)
-
 (* 
 Checks whether the state run is done, this is true if 
  - the state has the final-state attribute and this is a final state
