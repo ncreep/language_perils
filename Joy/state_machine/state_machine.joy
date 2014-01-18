@@ -5,7 +5,7 @@ DEFINE
 A state is a 2/3 items list, where the first item is the value, 
 the second is a transition function and the third is an optional flag to designate
 whether a state is final.
-The state transition function takes a pair of stack and current value, and produces a new state.
+The state transition function takes a pair of stack and current value, and produces a new stack and state.
 *)
 
 state-value == 0 at;
@@ -86,6 +86,37 @@ state-func ==
 	[[cur-stack] [stack-value-to-map] cleave] dip 
 	splice-from-map-no-eval infra
 	[rest] [first] cleave;
+  
+call-social-worker == ["call-social-worker" [[
+  [[input "sing-lullaby" =] cur-stack call-social-worker]
+  [[input "feed" =] cur-stack call-social-worker]
+  [[input "soothe" =] cur-stack call-social-worker]
+] condn]];
+  
+sleepy == ["sleepy" [[
+  [[input "sing-lullaby" =] cur-stack asleep]
+  [[input "feed" =] cur-stack crying]
+  [[input "soothe" =] cur-stack crying]
+] condn]];
+  
+hungry == ["hungry" [[
+  [[input "sing-lullaby" =] cur-stack crying]
+  [[input "feed" =] cur-stack asleep]
+  [[input "soothe" =] cur-stack crying]
+] condn]];
+  
+asleep == ["asleep" [[
+  [[input "sing-lullaby" =] cur-stack crying]
+  [[input "feed" =] cur-stack crying]
+  [[input "soothe" =] cur-stack crying]
+] condn]];
+  
+crying == ["crying" [[
+  [[input "sing-lullaby" =] cur-stack call-social-worker]
+  [[input "feed" =] cur-stack call-social-worker]
+  [[input "soothe" =] cur-stack asleep]
+] condn]];
+
 
 fail == ["fail" [] true];
 success == ["success" [] true];
