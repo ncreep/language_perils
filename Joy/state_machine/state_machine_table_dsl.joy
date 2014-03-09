@@ -17,17 +17,30 @@ Takes a nested list and adds an element wrapped in a list to the head of the lis
 *)
 add-to-nested == [] cons swons;
 
+# converts a symbol in a list into a string: [S] -> "S"
+sym-to-string == [name] map first;
+# converts a string in a symbol nested in a list: "S" -> [S]
+string-to-sym == intern unitlist;
+
+
 (* 
 Converts a list of values into a list of predicates:  
 [V1 V2 ...] -> [[input V1 =] [input V2 =] ...]
 *)
 to-input-preds == [[input] [=] enconcat] map;
 
+(*
+The code required to run a quote against a stack splitting the result into a new stack 
+and a next state (the same as state-func):
+[stack] [code] -> stack state
+*)
+against-stack == infra [rest] [first] cleave;
+
 (* 
 Converts a list of quotes into a new list of quotes which is run against the current stack value:  
-[Q1 Q2 ...] -> [[cur-stack Q1 infra] [cur-stack Q1 infra] ...]
+[Q1 Q2 ...] -> [[cur-stack Q1 against-stack] [cur-stack Q1 against-stack] ...]
 *)
-to-quotes-against-stack == [[cur-stack] [infra] enconcat] map;
+to-quotes-against-stack == [[cur-stack] [against-stack] enconcat] map;
 
 (* 
 Appends 'i' to each element in the given list:  
@@ -35,9 +48,10 @@ Appends 'i' to each element in the given list:
 *)
 to-applied-quotes == [[i] concat] map;
 
+
 (* 
 Takes a list of values and a list of quotations, combining them into a single list of the form:
-[V1 V2 ...] [Q1 Q2 ...] -> [[[input V1 =] [cur-stack Q1 infra] i] [[input V2 =] [cur-stack Q2 infra] i] ...]
+[V1 V2 ...] [Q1 Q2 ...] -> [[[input V1 =] [cur-stack Q1 against-stack] i] [[input V2 =] [cur-stack Q2 against-stack] i] ...]
 This makes it ready to be used in a 'condn' expression.
 *)
 to-condn-form ==  
@@ -46,7 +60,6 @@ to-condn-form ==
   zip
   to-applied-quotes; 
   
-
 (* 
 Converts a values list and a list describing a state into 'condn' that can be run as a state function: 
 [V1 V2 V3] [Q1 Q2 Q3 S] -> [[...] condn]
@@ -92,7 +105,7 @@ to-state-names == [first intern] map;
 # converting a list of states into map refernces of the form required by 'state-names-to-map-ref': [S] -> [refs]
 to-map-refs == 
   to-state-names
-  [dup name [states-map case] cons cons] map;
+  [dup name [states-map swap find-in-map] cons cons] map;
 
 (*
 Takes a list of states and replaces every occurrence of a state name with a reference 
@@ -109,63 +122,47 @@ Runs a state against an input list where next-state is evaluated against
 an environment map: 
 env input stack state -> final-state-value
 *)
-(*
-run-state-from-stack-with-env == [finish-state-run] [popd popd popd state-value] [
+run-state-from-stack-with-env == [finish-state-run] 
+  [popd popd popd # clearing stack
+  state-value string-to-sym]  [
   [[env input stack state]
     env # copy of the environment for the next state
     input stack move-first
     env state next-state splice-from-map # env input [stack value] -> env input new-stack new-state
   ] let-splice
 ] tailrec;
-*)
-run-state-from-stack-with-env ==
-  [[env input stack state]
-    env # copy of the environment for the next state
-    input stack move-first
-    env state next-state splice-from-map # env input [stack value] -> env input new-stack new-state
-  ] [first list-to-splice] [rest] cleave cons splice-from-stack-max [first] [rest] cleave splice-from-map-no-eval;
-  
+
+# running a table state machine against an empty stack: input start-state table -> final-state-name
 run-state-table == [
-  [[input ~0] [start ~1] [table ~2]]
+  [input start table]
+  input [] start table run-state-table-from-stack
+] let-splice; 
+
+# running a table state machine : input stack start-state table -> final-state-name
+run-state-table-from-stack == [
+  [input stack start table]
   table state-lists-to-states put-map-refs states-to-map 
   [[states-map] cons reverselist unitlist] # creating a name for the states map
-  [start swap case]
+  [start find-in-map]
   cleave
   input
-  [] # the init stack
+  stack # the init stack
   rolldown
- # run-state-from-stack-with-env
-] splice-from-stack-max [first] [rest] cleave splice-from-map-no-eval;; 
-#splice-from-stack-max [first] [rest] cleave splice-from-map-no-eval;
+  run-state-from-stack-with-env
+] let-splice; 
   
-(*
-[
-["a" [[[[input 3 =] [cur-stack ["a" states-map case] infra] i] [[input 2 =] [cu
-r-stack ["b" states-map case] infra] i] [[input 1 =] [cur-stack ["a" states-map
-case] infra] i]] condn]] 
-[] 
-[1] 
-[[states-map [["b" ["b" [[[[input 3 =] [cur-stac
-k ["b" states-map case] infra] i] [[input 2 =] [cur-stack ["a" states-map case]
-infra] i] [[input 1 =] [cur-stack ["b" states-map case] infra] i]] condn]]] ["a"
- ["a" [[[[input 3 =] [cur-stack ["a" states-map case] infra] i] [[input 2 =] [cu
-r-stack ["b" states-map case] infra] i] [[input 1 =] [cur-stack ["a" states-map
-case] infra] i]] condn]]]]]]
-]
-*)
-
 # the column delimiter, for all columns apart from the state names column
 | == add-to-head-of-nested;
 
 # the state names column delimiter
-: == add-to-nested;
+: == sym-to-string add-to-nested;
 
 # the starting value for the description of a state machine
 @ == [[]];
 
 test == 
     @   1  |  2  |  3  |
-"a" : [ a ]|[ b ]|[ a ]| 
-"b" : [ b ]|[ a ]|[ b ]|
+[a] : [ a ]|[ b ]|[ a ]| 
+[b] : [ b ]|[ a ]|[ b ]|
 ;
 .
