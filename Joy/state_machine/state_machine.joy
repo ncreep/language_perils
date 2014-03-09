@@ -97,7 +97,7 @@ call-social-worker == ["call-social-worker" [[
 
   
 sleepy == ["sleepy" [[
-  [[input "sing-lullaby" =] [1 -] one-down asleep]
+  [[input "sing-lullaby" =] one-down asleep]
   [[input "feed" =] one-up crying]
   [[input "soothe" =] one-up crying]
 ] condn]];

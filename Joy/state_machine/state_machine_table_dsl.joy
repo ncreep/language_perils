@@ -1,0 +1,171 @@
+"state_machine.joy" include.
+"list_util.joy" include.
+
+(* A domain-specific language to represent state machines as textual tables.
+TODO: usage example *)
+DEFINE 
+
+(* 
+Takes a nested list and adds an element to the head of the first item in the list: 
+[[A B C] ...] D -> [[D A B C] ...]
+*)
+add-to-head-of-nested == swap uncons [cons] dip cons;
+
+(* 
+Takes a nested list and adds an element wrapped in a list to the head of the list: 
+[[A B C] ...] D -> [[D] [A B C] ...]
+*)
+add-to-nested == [] cons swons;
+
+(* 
+Converts a list of values into a list of predicates:  
+[V1 V2 ...] -> [[input V1 =] [input V2 =] ...]
+*)
+to-input-preds == [[input] [=] enconcat] map;
+
+(* 
+Converts a list of quotes into a new list of quotes which is run against the current stack value:  
+[Q1 Q2 ...] -> [[cur-stack Q1 infra] [cur-stack Q1 infra] ...]
+*)
+to-quotes-against-stack == [[cur-stack] [infra] enconcat] map;
+
+(* 
+Appends 'i' to each element in the given list:  
+[[A1] [A2] ...] -> [[A1 i] [A2 i] ...]
+*)
+to-applied-quotes == [[i] concat] map;
+
+(* 
+Takes a list of values and a list of quotations, combining them into a single list of the form:
+[V1 V2 ...] [Q1 Q2 ...] -> [[[input V1 =] [cur-stack Q1 infra] i] [[input V2 =] [cur-stack Q2 infra] i] ...]
+This makes it ready to be used in a 'condn' expression.
+*)
+to-condn-form ==  
+  [to-input-preds] dip
+  to-quotes-against-stack
+  zip
+  to-applied-quotes; 
+  
+
+(* 
+Converts a values list and a list describing a state into 'condn' that can be run as a state function: 
+[V1 V2 V3] [Q1 Q2 Q3 S] -> [[...] condn]
+*)
+state-list-to-state-func == 
+  init
+  to-condn-form
+  [condn] cons;
+  
+(*
+Takes a list of values and a list describing a state and turns them into a single 
+'condn' expression surrounded by the state name:
+[V1 V2 V3] [Q1 Q2 Q3 S] -> [S [...] condn]
+*)
+list-to-state == 
+  [last] [state-list-to-state-func] cleave
+  pairlist;
+
+(* 
+Takes a list description of a state machine and converts it into a list of states:
+[[Q1 Q2 Q3 S1] [Q1 Q2 Q3 S2] ... [V1 V2 V3]]  -> [[S1] [S2] ...]
+*)
+state-lists-to-states == 
+  [last] [init] cleave
+  [list-to-state] map 
+  popd;
+
+(*
+Converts a list of states into a map where the keys are the names of the states 
+and the values are the states:
+[["S1" ...] ["S2" ...] ...] -> [["S1" ["S1" ...]] ["S2" ["S2" ...]] ...]
+*)
+states-to-map == [
+  [first] [rest] cleave
+  [dup] dip
+  cons
+  pairlist
+] map;
+
+# converts a list of states to list of state names in symbol form: [["S1" ...] ["S2" ...] ...] -> [S1 S2 ...]
+to-state-names == [first intern] map;
+
+# converting a list of states into map refernces of the form required by 'state-names-to-map-ref': [S] -> [refs]
+to-map-refs == 
+  to-state-names
+  [dup name [states-map case] cons cons] map;
+
+(*
+Takes a list of states and replaces every occurrence of a state name with a reference 
+to that state of the form '"S" states-map case'.
+[S] -> [S]
+*)
+put-map-refs == 
+  dup to-map-refs swap
+  [splice-from-map-no-eval] map # inserting map references into each state
+  popd;
+  
+(* 
+Runs a state against an input list where next-state is evaluated against 
+an environment map: 
+env input stack state -> final-state-value
+*)
+(*
+run-state-from-stack-with-env == [finish-state-run] [popd popd popd state-value] [
+  [[env input stack state]
+    env # copy of the environment for the next state
+    input stack move-first
+    env state next-state splice-from-map # env input [stack value] -> env input new-stack new-state
+  ] let-splice
+] tailrec;
+*)
+run-state-from-stack-with-env ==
+  [[env input stack state]
+    env # copy of the environment for the next state
+    input stack move-first
+    env state next-state splice-from-map # env input [stack value] -> env input new-stack new-state
+  ] [first list-to-splice] [rest] cleave cons splice-from-stack-max [first] [rest] cleave splice-from-map-no-eval;
+  
+run-state-table == [
+  [[input ~0] [start ~1] [table ~2]]
+  table state-lists-to-states put-map-refs states-to-map 
+  [[states-map] cons reverselist unitlist] # creating a name for the states map
+  [start swap case]
+  cleave
+  input
+  [] # the init stack
+  rolldown
+ # run-state-from-stack-with-env
+] splice-from-stack-max [first] [rest] cleave splice-from-map-no-eval;; 
+#splice-from-stack-max [first] [rest] cleave splice-from-map-no-eval;
+  
+(*
+[
+["a" [[[[input 3 =] [cur-stack ["a" states-map case] infra] i] [[input 2 =] [cu
+r-stack ["b" states-map case] infra] i] [[input 1 =] [cur-stack ["a" states-map
+case] infra] i]] condn]] 
+[] 
+[1] 
+[[states-map [["b" ["b" [[[[input 3 =] [cur-stac
+k ["b" states-map case] infra] i] [[input 2 =] [cur-stack ["a" states-map case]
+infra] i] [[input 1 =] [cur-stack ["b" states-map case] infra] i]] condn]]] ["a"
+ ["a" [[[[input 3 =] [cur-stack ["a" states-map case] infra] i] [[input 2 =] [cu
+r-stack ["b" states-map case] infra] i] [[input 1 =] [cur-stack ["a" states-map
+case] infra] i]] condn]]]]]]
+]
+*)
+
+# the column delimiter, for all columns apart from the state names column
+| == add-to-head-of-nested;
+
+# the state names column delimiter
+: == add-to-nested;
+
+# the starting value for the description of a state machine
+@ == [[]];
+
+test == 
+    @   1  |  2  |  3  |
+"a" : [ a ]|[ b ]|[ a ]| 
+"b" : [ b ]|[ a ]|[ b ]|
+;
+.

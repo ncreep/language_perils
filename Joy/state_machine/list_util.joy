@@ -1,0 +1,41 @@
+(* A number of list utility functions, mostly copied from the Joy tutorials *)
+DEFINE 
+
+# reverses a single list
+reverselist  ==  [] [swons] fold;
+
+# takes the init of a list (all items except the last)
+init == reverselist rest reverselist;
+
+# takes the last item of a list
+last == reverselist first;
+
+unitlist == [] cons;
+pairlist ==  [] cons cons;
+uncons2 ==  [uncons ] dip uncons  swapd;
+null2  ==  [null] [true] [pop null] ifte;
+
+# zips two lists together: [X1 X2 ...] [Y1 Y2 ...] -> [[X1 Y1] [X2 Y2] ...]
+zip == [pairlist] zipwith;
+  
+(* 
+Zips two lists together using a combinations functions: 
+[X1 X2 ...] [Y1 Y2 ...] [P] -> [X1 Y1 P X2 Y2 P ...]
+*)
+zipwith ==
+  [ [ null2 ]
+  [ pop pop [] ]
+  [ uncons2 ] ]
+  dip
+  [ dip cons ] cons
+  linrec;
+
+(*
+Finds a the value of a key in a map, assuming the key is present:
+[... [K V] ...] K ->  V
+*)  
+find-in-map == 
+  [first] [=] enconcat # creating the search predicate
+  filter first 
+  1 at; # fetching the value
+.
