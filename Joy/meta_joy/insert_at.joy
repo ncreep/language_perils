@@ -34,7 +34,7 @@ DEFINE
 			enconcat
 	] let;
 	
-	# splicing arguments using a let-short-splice
+	# splicing arguments using a let-splice
 	insert-at-let-splice == [
 		[list val index]
 			val

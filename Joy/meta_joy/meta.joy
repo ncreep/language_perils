@@ -132,9 +132,9 @@ DEFINE
 	key-predicate == [get-key] [=] enconcat;
 	
 	(* 
-		Takes a map and a symbol key and tries to find the occurence of the key in the map: map key -> value.
+		Takes a map and a symbol key and tries to find the occurrence of the key in the map: map key -> value.
 		The map has the following structure: [[key1 value1] [key2 value2] ...]
-		Where each value can be anything and and the key is a Joy word converted to a string using "name".
+		Where each value can be anything and the key is a Joy symbol.
 		The function assumes that the key is present in the map.
 	*)
 	find-by-key == 
