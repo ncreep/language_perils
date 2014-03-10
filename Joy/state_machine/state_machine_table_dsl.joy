@@ -174,4 +174,17 @@ baby ==
  [asleep] : [   succ crying  ]|[   succ crying  ]|[ succ crying ]|
  [crying] : [ should-call-sw ]|[ should-call-sw ]|[ pred asleep ]|
 [call-sw] : [    call-sw     ]|[    call-sw     ]|[   call-sw   ]|
+
+;
+
+no-stack == stack null;
+
+n-zero-ones == 
+    @   '0   |     '1    | 'x |
+[p] : ['z p] | [pop  q] | [[no-stack] [r] [f] ifte] |  
+[q] : [f]    | [pop q]  | [[no-stack] [r] [f] ifte] |  
+[r] : [r]    |      [r] | [r] | 
+[f] : [f]    |      [f] | [f] |  
+
+;   
 .
