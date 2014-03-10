@@ -19,7 +19,7 @@ null2  ==  [null] [true] [pop null] ifte;
 zip == [pairlist] zipwith;
   
 (* 
-Zips two lists together using a combinations functions: 
+Zips two lists together using a combinator function: 
 [X1 X2 ...] [Y1 Y2 ...] [P] -> [X1 Y1 P X2 Y2 P ...]
 *)
 zipwith ==
