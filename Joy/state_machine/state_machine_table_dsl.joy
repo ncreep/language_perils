@@ -22,7 +22,6 @@ sym-to-string == [name] map first;
 # converts a string in a symbol nested in a list: "S" -> [S]
 string-to-sym == intern unitlist;
 
-
 (* 
 Converts a list of values into a list of predicates:  
 [V1 V2 ...] -> [[input V1 =] [input V2 =] ...]
@@ -118,7 +117,7 @@ put-map-refs ==
   popd;
   
 (* 
-Runs a state against an input list where next-state is evaluated against 
+Runs a state against an input list where then next-state function is evaluated against 
 an environment map: 
 env input stack state -> final-state-value
 *)
@@ -133,14 +132,11 @@ run-state-from-stack-with-env == [finish-state-run]
 ] tailrec;
 
 # running a table state machine against an empty stack: input start-state table -> final-state-name
-run-state-table == [
-  [input start table]
-  input [] start table run-state-table-from-stack
-] let-splice; 
+run-state-table == [] run-state-table-from-stack; 
 
 # running a table state machine : input stack start-state table -> final-state-name
 run-state-table-from-stack == [
-  [input stack start table]
+  [input start table stack]
   table state-lists-to-states put-map-refs states-to-map 
   [[states-map] cons reverselist unitlist] # creating a name for the states map
   [start find-in-map]
@@ -150,7 +146,8 @@ run-state-table-from-stack == [
   rolldown
   run-state-from-stack-with-env
 ] let-splice; 
-  
+
+
 # the column delimiter, for all columns apart from the state names column
 | == add-to-head-of-nested;
 
@@ -165,4 +162,16 @@ test ==
 [a] : [ a ]|[ b ]|[ a ]| 
 [b] : [ b ]|[ a ]|[ b ]|
 ;
+
+run-baby-table == [0] run-state-table-from-stack; 
+strikes == 3;
+should-call-sw == [strikes >=] [call-sw] [succ crying] ifte;
+
+baby == 
+          @    "sing-lullaby" |       "feed"     |    "soothe"   |
+ [sleepy] : [   pred asleep  ]|[   succ crying  ]|[ succ crying ]|
+ [hungry] : [   succ crying  ]|[   pred asleep  ]|[ succ crying ]|
+ [asleep] : [   succ crying  ]|[   succ crying  ]|[ succ crying ]|
+ [crying] : [ should-call-sw ]|[ should-call-sw ]|[ pred asleep ]|
+[call-sw] : [    call-sw     ]|[    call-sw     ]|[   call-sw   ]|
 .
