@@ -30,8 +30,8 @@ to-input-preds == [[input] [=] enconcat] map;
 
 (*
 The code required to run a quote against a stack splitting the result into a new stack 
-and a next state (the same as state-func):
-[stack] [code] -> stack state
+and a next state (the top of the resulting stack is the next state, and the rest is the new stack):
+[stack] [code] -> new-stack new-state
 *)
 against-stack == infra [rest] [first] cleave;
 
@@ -139,10 +139,10 @@ run-state-table-from-stack == [
   [input start table stack]
   table state-lists-to-states put-map-refs states-to-map 
   [[states-map] cons reverselist unitlist] # creating a name for the states map
-  [start find-in-map]
+  [start sym-to-string find-in-map]
   cleave
   input
-  stack # the init stack
+  stack
   rolldown
   run-state-from-stack-with-env
 ] let-splice; 
