@@ -2,16 +2,14 @@
 DEFINE 
 
 (* 
-A state is a 2/3 items list, where the first item is the value, 
-the second is a transition function and the third is an optional flag to designate
-whether a state is final.
-The state transition function takes a pair of stack and current value, and produces a new stack and state.
+A state is a 2 items list, where the first item is the value, 
+the second is a transition function.
+The state transition function takes a pair of stack and current value, and produces a new stack and state:
+[stack value] -> new-stack new-state
 *)
 
 state-value == 0 at;
 next-state == 1 at;
-is-final-state == 2 at;
-has-final-state == size 3 =;
 
 # moves the first element from one list into a list pair with the second argument: [x rest] y -> [rest] [y x]
 move-first == swap 
@@ -20,16 +18,10 @@ move-first == swap
 	ifte;
 
 (* 
-Checks whether the state run is done, this is true if 
- - the state has the final-state attribute and this is a final state
- - the state does not have the final-state attribute, but the input is done
+Checks whether the state run is done, this is true if the input is done.
 input stack state -> boolean
 *)
-finish-state-run == 
-	[has-final-state] 
-	[is-final-state popd popd] # this is a final state
-	[pop pop null] # no more input
-ifte;
+finish-state-run == pop pop null;
 
 # runs a state against an input list: input stack state -> final-state-value
 run-state-from-stack == [finish-state-run] [popd popd state-value] [
@@ -37,18 +29,12 @@ run-state-from-stack == [finish-state-run] [popd popd state-value] [
 	next-state i # input [stack value] -> input new-stack new-state
 ] tailrec;
 
-(* *)
 # runs a state from an input list and an empty stack: input state -> final state value
 run-state == [] swap run-state-from-stack;
 
 # manipulation of [stack value] pairs
-has-input == size 2 =;
-no-input == size 1 =; 
 cur-stack == 0 at;
 input == 1 at;
-input-or-default == [has-input] [input] [[]] ifte;
-empty-stack == cur-stack null;
-non-empty-stack == empty-stack not;
 
 # applies a function to the top of the stack and returns a new stack: [stack value] func -> new-stack
 on-stack  == swap cur-stack uncons [swap i] dip cons;
