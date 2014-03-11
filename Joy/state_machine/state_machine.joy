@@ -120,26 +120,4 @@ crying == ["crying" [[
   [[input "soothe" =] one-down asleep]
 ] condn]];
 
-
-fail == ["fail" [] true];
-success == ["success" [] true];
-n-zero-ones == ["n-zero-ones" [n-zero-ones-next] false];
-
-n-zero-ones-next == [[
-	[[empty-stack no-input and] success]
-	[[non-empty-stack no-input and] fail]
-	[[input '0 =] input n-zero-ones]
-	[[non-empty-stack input '1 = and] pop n-zero-ones]
-	[[empty-stack input '1 = and] fail]
-] condn] state-func;
-
-(*
-n-zero-ones-next == [
-	[[[empty-stack] [no-input] cleave and] cur-stack success]
-	[[[non-empty-stack] [no-input] cleave and] cur-stack fail]
-	[[input '0 =] [input] [cur-stack] cleave cons n-zero-ones]
-	[[[non-empty-stack] [input '1 =] cleave and] cur-stack rest n-zero-ones]
-	[[[empty-stack] [input '1 =] cleave and] cur-stack fail]
-] condn;
-*)
 .
