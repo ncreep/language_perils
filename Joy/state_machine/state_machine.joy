@@ -42,45 +42,4 @@ on-stack  == swap cur-stack uncons [swap i] dip cons;
 # same as cond, but without the default value
 condn == [[]] concat cond;
 
-# runs the state of a baby, initializing the mistakes count to 0: input state -> final state value
-run-baby-state == [0] swap run-state-from-stack;
-
-# increments/decrement the value on the top of the stack
-one-up == [succ] on-stack;
-one-down == [pred] on-stack;
-
-# the maximal number of failures a parent is allowed to have
-max-fail == 3;
-  
-call-social-worker == ["call-social-worker" [[
-  [[input "sing-lullaby" =] cur-stack call-social-worker]
-  [[input "feed" =] cur-stack call-social-worker]
-  [[input "soothe" =] cur-stack call-social-worker]
-] condn]];
-
-  
-sleepy == ["sleepy" [[
-  [[input "sing-lullaby" =] one-down asleep]
-  [[input "feed" =] one-up crying]
-  [[input "soothe" =] one-up crying]
-] condn]];
-  
-hungry == ["hungry" [[
-  [[input "sing-lullaby" =] one-up crying]
-  [[input "feed" =] one-down asleep]
-  [[input "soothe" =] one-up crying]
-] condn]];
-  
-asleep == ["asleep" [[
-  [[input "sing-lullaby" =] one-up crying]
-  [[input "feed" =] one-up crying]
-  [[input "soothe" =] one-up crying]
-] condn]];
-  
-crying == ["crying" [[
-  [[input "sing-lullaby" =] [cur-stack first max-fail >=] [cur-stack call-social-worker] [one-up crying] ifte]
-  [[input "feed" =] [cur-stack first max-fail >=] [cur-stack call-social-worker] [one-up crying] ifte]
-  [[input "soothe" =] one-down asleep]
-] condn]];
-
 .
