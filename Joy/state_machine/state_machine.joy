@@ -56,29 +56,6 @@ on-stack  == swap cur-stack uncons [swap i] dip cons;
 # same as cond, but without the default value
 condn == [[]] concat cond;
 
-# converts a [stack value] pair into a map of relevant data
-stack-value-to-map == [[stack-value]
-	[[has-input stack-value has-input]
-	 [no-input stack-value no-input]
-	 [input stack-value input-or-default]
-	 [empty-stack stack-value empty-stack]
-	 [non-empty-stack stack-value non-empty-stack]]
-] let-splice;
-
-(*
-Lifts a state transition function into an environment where the output of stack-value-to-map
-is available as values. The resulting function is run against the 
-stack from the current [stack value] pair. The state transition function should leave
-the newly calculated stack and the new state on top of it as a result.
-The resulting stack and state are converted into a list and a state on top of it, to be used
-for further calculations in run-state-from-stack.
-[stack value] state-func -> stack state
-*)
-state-func == 
-	[[cur-stack] [stack-value-to-map] cleave] dip 
-	splice-from-map-no-eval infra
-	[rest] [first] cleave;
-  
 # runs the state of a baby, initializing the mistakes count to 0: input state -> final state value
 run-baby-state == [0] swap run-state-from-stack;
 
