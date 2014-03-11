@@ -1,8 +1,36 @@
 "state_machine.joy" include.
 "list_util.joy" include.
 
-(* A domain-specific language to represent state machines as textual tables.
-TODO: usage example *)
+(* 
+A domain-specific language to represent state machines as textual tables.
+
+The header of the table contains the possible inputs, in the first column are the names of the possible 
+states (as quoted symbols).
+A table definition starts with an at sign ('@'), each subsequent column, apart from the state names column should be
+separated by a pipe ('|'). The state names column should be separated with a colon (':').
+Each cell contains a quote with the actions for the given state/input. Any code that is written 
+there will be executed against a stack which will be passed in between the states. 
+The last action of the cell should leave behind the symbol representing the next 
+state (this would not be included on the stack for the next state).
+
+An example of a simple state machine:
+
+test == 
+    @   1  |  2  |  3  |
+[a] : [ a ]|[ b ]|[ a ]| 
+[b] : [ b ]|[ a ]|[ b ]|
+;
+
+The machine defines two states 'a' and 'b', with the possible inputs of 1, 2 and 3.
+
+Table state machines should be run using the 'run-state-table' function. For example:
+
+[1 2 2 1 3] [a] test run-state-table.
+
+Which runs our table starting from the 'a' state against a list of inputs.
+
+For a less trivial example of a table see 'baby_state_machine_dsl.joy'.
+*)
 DEFINE
 
 (* 'treeflatten' and 'treemap-concat' are defined in meta.joy *)
@@ -176,12 +204,6 @@ run-state-table-from-stack == [
 
 # the starting value for the description of a state machine
 @ == [[]];
-
-test == 
-    @   1  |  2  |  3  |
-[a] : [ a ]|[ b ]|[ a ]| 
-[b] : [ b ]|[ a ]|[ b ]|
-;
 
 run-baby-table == [0] run-state-table-from-stack; 
 strikes == 3;
