@@ -47,7 +47,6 @@ Appends 'i' to each element in the given list:
 *)
 to-applied-quotes == [[i] concat] map;
 
-
 (* 
 Takes a list of values and a list of quotations, combining them into a single list of the form:
 [V1 V2 ...] [Q1 Q2 ...] -> [[[input V1 =] [cur-stack Q1 against-stack] i] [[input V2 =] [cur-stack Q2 against-stack] i] ...]
