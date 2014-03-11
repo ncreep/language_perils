@@ -13,6 +13,9 @@ there will be executed against a stack which will be passed in between the state
 The last action of the cell should leave behind the symbol representing the next 
 state (this would not be included on the stack for the next state).
 
+Note that the state names should not clash with other user defined symbols, as this may cause
+the state machine to misbehave.
+
 An example of a simple state machine:
 
 test == 
@@ -159,6 +162,7 @@ to-map-refs ==
 Takes a list of states and replaces every occurrence of a state name with a reference 
 to that state of the form '"S" states-map swap find-in-map'.
 [S] -> [S]
+Using 'expand-user-syms' to make sure that all occurrences of state names are visible.
 *)
 put-map-refs == 
   dup to-map-refs swap
