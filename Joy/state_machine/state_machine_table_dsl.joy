@@ -3,7 +3,29 @@
 
 (* A domain-specific language to represent state machines as textual tables.
 TODO: usage example *)
-DEFINE 
+DEFINE
+
+(* 'treeflatten' and 'treemap-concat' are defined in meta.joy *)
+
+(* If a symbol has a non empty definition, it is expanded, otherwise it remains unchanged: sym -> [P] *)
+non-empty-body == [body null] [] [body] ifte;
+
+(* 
+Yields true if the given quotation contains a user defined symbol, false if it doesn't or 
+it's not a quote: 
+[P]/P -> boolean
+*)
+has-user-syms == [treeflatten [user] some] [false] iflist;
+
+(*
+Recursively expanding all user defined symbols in the given quote. Symbols with empty
+definitions ('[]') remain as is (so that they can be used as identifiers): [P] -> [P']
+*)
+expand-user-syms == [
+  [user] 
+  [non-empty-body [has-user-syms] [expand-user-syms] [] ifte] 
+  [] ifte
+] treemap-concat; 
 
 (* 
 Takes a nested list and adds an element to the head of the first item in the list: 
@@ -100,19 +122,19 @@ states-to-map == [
 # converts a list of states to list of state names in symbol form: [["S1" ...] ["S2" ...] ...] -> [S1 S2 ...]
 to-state-names == [first intern] map;
 
-# converting a list of states into map refernces of the form required by 'state-names-to-map-ref': [S] -> [refs]
+# converting a list of states into map references of the form required by 'put-map-refs': [S] -> [refs]
 to-map-refs == 
   to-state-names
   [dup name [states-map swap find-in-map] cons cons] map;
 
 (*
 Takes a list of states and replaces every occurrence of a state name with a reference 
-to that state of the form '"S" states-map case'.
+to that state of the form '"S" states-map swap find-in-map'.
 [S] -> [S]
 *)
 put-map-refs == 
   dup to-map-refs swap
-  [splice-from-map-no-eval] map # inserting map references into each state
+  [expand-user-syms splice-from-map-no-eval] map # inserting map references into each state
   popd;
   
 (* 
@@ -145,7 +167,6 @@ run-state-table-from-stack == [
   rolldown
   run-state-from-stack-with-env
 ] let-splice; 
-
 
 # the column delimiter, for all columns apart from the state names column
 | == add-to-head-of-nested;
