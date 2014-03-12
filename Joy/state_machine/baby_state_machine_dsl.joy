@@ -9,6 +9,7 @@ Example usage:
 *)
 DEFINE 
 
+# runs the state of a baby, initializing the mistakes count to 0: input state -> final state value
 run-baby-table == baby [0] run-state-table-from-stack; 
 
 # the maximal number of mistakes a parent is allowed to have
