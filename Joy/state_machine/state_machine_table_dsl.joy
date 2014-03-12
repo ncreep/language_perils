@@ -91,8 +91,13 @@ against-stack == infra [rest] [first] cleave;
 (* 
 Converts a list of quotes into a new list of quotes which is run against the current stack value:  
 [Q1 Q2 ...] -> [[cur-stack Q1 against-stack] [cur-stack Q1 against-stack] ...]
+
+Using 'expand-user-syms' to make sure that all occurrences of state names are visible.
 *)
-to-quotes-against-stack == [[cur-stack] [against-stack] enconcat] map;
+to-quotes-against-stack == [
+  expand-user-syms 
+  [cur-stack] [against-stack] enconcat
+] map;
 
 (* 
 Appends 'i' to each element in the given list:  
@@ -162,11 +167,10 @@ to-map-refs ==
 Takes a list of states and replaces every occurrence of a state name with a reference 
 to that state of the form '"S" states-map swap find-in-map'.
 [S] -> [S]
-Using 'expand-user-syms' to make sure that all occurrences of state names are visible.
 *)
 put-map-refs == 
   dup to-map-refs swap
-  [expand-user-syms splice-from-map-no-eval] map # inserting map references into each state
+  [splice-from-map-no-eval] map # inserting map references into each state
   popd;
   
 (* 
@@ -198,7 +202,20 @@ run-state-table-from-stack == [
   stack
   rolldown
   run-state-from-stack-with-env
-] let-splice; 
+] let-splice;
+
+(*
+[[0] state-lists-to-stat put-map-refs states-to-map [[states-map] cons reverseli
+st unitlist] [[sleepy] sym-to-string find-in-map] cleave "hi" put ["soothe"] [[[
+call-sw] [call-sw] [call-sw] "call-sw"] [[pred asleep] [should-call-sw] [should-
+call-sw] "crying"] [[succ crying] [succ crying] [succ crying] "asleep"] [[succ c
+rying] [pred asleep] [succ crying] "hungry"] [[succ crying] [succ crying] [pred
+asleep] "sleepy"] ["soothe" "feed" "sing-lullaby"]] 
+rolldown 
+run-state-from-stac
+]
+
+*)
 
 # the column delimiter, for all columns apart from the state names column
 | == add-to-head-of-nested;
@@ -209,7 +226,7 @@ run-state-table-from-stack == [
 # the starting value for the description of a state machine
 @ == [[]];
 
-# checkes whether the current stack is empty: A B C -> A B C boolean
+# checks whether the current stack is empty: -> boolean
 no-stack == stack null;
 
 n-zero-ones == 

@@ -23,14 +23,16 @@ input stack state -> boolean
 *)
 finish-state-run == pop pop null;
 
-# runs a state against an input list: input stack state -> final-state-value
-run-state-from-stack == [finish-state-run] [popd popd state-value] [
-	[move-first] dip
-	next-state i # input [stack value] -> input new-stack new-state
-] tailrec;
+# runs a state against an input list: input state stack -> final-state-value
+run-state-from-stack == 
+  swap # arguments are now: input stack state
+  [finish-state-run] [popd popd state-value] [
+    [move-first] dip
+    next-state i # input [stack value] -> input new-stack new-state
+  ] tailrec;
 
 # runs a state from an input list and an empty stack: input state -> final state value
-run-state == [] swap run-state-from-stack;
+run-state == [] run-state-from-stack;
 
 # manipulation of [stack value] pairs
 cur-stack == 0 at;

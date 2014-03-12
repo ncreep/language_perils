@@ -1,10 +1,16 @@
 "state_machine.joy" include.
 
-(* A state machine that describes the behavior of babies. *)
+(* 
+A state machine that describes the behavior of babies. 
+
+Example usage:
+
+["soothe" "feed" "feed" "feed"] sleepy run-baby-state.
+*)
 DEFINE 
 
 # runs the state of a baby, initializing the mistakes count to 0: input state -> final state value
-run-baby-state == [0] swap run-state-from-stack;
+run-baby-state == [0] run-state-from-stack;
 
 # increments/decrement the value on the top of the stack
 one-up == [succ] on-stack;

@@ -1,9 +1,15 @@
 "state_machine_table_dsl.joy" include.
 
-(* A state machine that describes the behavior of babies in table DSL form. *)
+(* 
+A state machine that describes the behavior of babies in table DSL form. 
+
+Example usage:
+
+["soothe" "feed" "feed" "feed"] [sleepy] run-baby-table.
+*)
 DEFINE 
 
-run-baby-table == [0] run-state-table-from-stack; 
+run-baby-table == baby [0] run-state-table-from-stack; 
 strikes == 3;
 should-call-sw == [strikes >=] [call-sw] [succ crying] ifte;
 
