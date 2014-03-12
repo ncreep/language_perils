@@ -204,19 +204,6 @@ run-state-table-from-stack == [
   run-state-from-stack-with-env
 ] let-splice;
 
-(*
-[[0] state-lists-to-stat put-map-refs states-to-map [[states-map] cons reverseli
-st unitlist] [[sleepy] sym-to-string find-in-map] cleave "hi" put ["soothe"] [[[
-call-sw] [call-sw] [call-sw] "call-sw"] [[pred asleep] [should-call-sw] [should-
-call-sw] "crying"] [[succ crying] [succ crying] [succ crying] "asleep"] [[succ c
-rying] [pred asleep] [succ crying] "hungry"] [[succ crying] [succ crying] [pred
-asleep] "sleepy"] ["soothe" "feed" "sing-lullaby"]] 
-rolldown 
-run-state-from-stac
-]
-
-*)
-
 # the column delimiter, for all columns apart from the state names column
 | == add-to-head-of-nested;
 
@@ -225,6 +212,9 @@ run-state-from-stac
 
 # the starting value for the description of a state machine
 @ == [[]];
+
+# a no-op to be used as a visual delimiter
+, == ;
 
 # checks whether the current stack is empty: -> boolean
 no-stack == stack null;

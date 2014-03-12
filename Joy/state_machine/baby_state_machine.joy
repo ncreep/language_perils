@@ -5,49 +5,54 @@ A state machine that describes the behavior of babies.
 
 Example usage:
 
-["soothe" "feed" "feed" "feed"] sleepy run-baby-state.
+["soothe" "feed" "sing-lullaby" "feed"] [sleepy] run-baby-table.
 *)
 DEFINE 
 
 # runs the state of a baby, initializing the mistakes count to 0: input state -> final state value
 run-baby-state == [0] run-state-from-stack;
 
-# increments/decrement the value on the top of the stack
-one-up == [succ] on-stack;
-one-down == [pred] on-stack;
+# the maximal number of mistakes a parent is allowed to have
+max-mistakes == 3;
 
-# the maximal number of failures a parent is allowed to have
-max-fail == 3;
-  
-call-social-worker == ["call-social-worker" [[
-  [[input "sing-lullaby" =] cur-stack call-social-worker]
-  [[input "feed" =] cur-stack call-social-worker]
-  [[input "soothe" =] cur-stack call-social-worker]
-] condn]];
+# incrementing/decrementing the number of parent mistakes
+wrong == [succ] on-stack;
+right == [pred] on-stack;
 
+# the baby decides whether he/she needs to call a social worker
+should-call-social-worker == 
+  [cur-stack first max-fail >=] 
+  [cur-stack call-social-worker] 
+  [wrong crying] ifte;
   
 sleepy == ["sleepy" [[
-  [[input "sing-lullaby" =] one-down asleep]
-  [[input "feed" =] one-up crying]
-  [[input "soothe" =] one-up crying]
+  [["sing-lullaby" input-is] right asleep]
+  [["feed" input-is] wrong crying]
+  [["soothe" input-is] wrong crying]
 ] condn]];
   
 hungry == ["hungry" [[
-  [[input "sing-lullaby" =] one-up crying]
-  [[input "feed" =] one-down asleep]
-  [[input "soothe" =] one-up crying]
+  [["sing-lullaby" input-is] wrong crying]
+  [["feed" input-is] right asleep]
+  [["soothe" input-is] wrong crying]
 ] condn]];
   
 asleep == ["asleep" [[
-  [[input "sing-lullaby" =] one-up crying]
-  [[input "feed" =] one-up crying]
-  [[input "soothe" =] one-up crying]
+  [["sing-lullaby" input-is] wrong crying]
+  [["feed" input-is] wrong crying]
+  [["soothe" input-is] wrong crying]
 ] condn]];
   
 crying == ["crying" [[
-  [[input "sing-lullaby" =] [cur-stack first max-fail >=] [cur-stack call-social-worker] [one-up crying] ifte]
-  [[input "feed" =] [cur-stack first max-fail >=] [cur-stack call-social-worker] [one-up crying] ifte]
-  [[input "soothe" =] one-down asleep]
+  [["sing-lullaby" input-is] should-call-social-worker]
+  [["feed" input-is] should-call-social-worker]
+  [["soothe" input-is] right asleep]
+] condn]];
+
+call-social-worker == ["call-social-worker" [[
+  [["sing-lullaby" input-is] cur-stack call-social-worker]
+  [["feed" input-is] cur-stack call-social-worker]
+  [["soothe" input-is] cur-stack call-social-worker]
 ] condn]];
 
 .

@@ -5,23 +5,32 @@ A state machine that describes the behavior of babies in table DSL form.
 
 Example usage:
 
-["soothe" "feed" "feed" "feed"] [sleepy] run-baby-table.
+["soothe" "feed" "sing-lullaby" "feed"] [sleepy] run-baby-table.
 *)
 DEFINE 
 
 run-baby-table == baby [0] run-state-table-from-stack; 
-strikes == 3;
-should-call-sw == [strikes >=] [call-sw] [succ crying] ifte;
+
+# the maximal number of mistakes a parent is allowed to have
+max-mistakes == 3;
+
+# incrementing/decrementing the number of parent mistakes
+wrong == succ;
+right == pred;
+
+
+# the baby decides whether he/she needs to call a social worker
+should-call-sw == [max-mistakes >=] [call-sw] [wrong crying] ifte;
 
 # 'call-sw' stands for "call social worker"
 
 baby == 
-          @    "sing-lullaby" |       "feed"     |    "soothe"   |
- [sleepy] : [   pred asleep  ]|[   succ crying  ]|[ succ crying ]|
- [hungry] : [   succ crying  ]|[   pred asleep  ]|[ succ crying ]|
- [asleep] : [   succ crying  ]|[   succ crying  ]|[ succ crying ]|
- [crying] : [ should-call-sw ]|[ should-call-sw ]|[ pred asleep ]|
-[call-sw] : [    call-sw     ]|[    call-sw     ]|[   call-sw   ]|
+          @   "sing-lullaby"  |       "feed"      |    "soothe"     |
+ [sleepy] : [  right, asleep  ]|[  wrong, crying ]|[ wrong, crying ]|
+ [hungry] : [  wrong, crying  ]|[  right, asleep ]|[ wrong, crying ]|
+ [asleep] : [  wrong, crying  ]|[  wrong, crying ]|[ wrong, crying ]|
+ [crying] : [ should-call-sw  ]|[ should-call-sw ]|[ right, asleep ]|
+[call-sw] : [    call-sw      ]|[    call-sw     ]|[    call-sw    ]|
 ;
 
 .

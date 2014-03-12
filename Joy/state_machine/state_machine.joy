@@ -37,6 +37,8 @@ run-state == [] run-state-from-stack;
 # manipulation of [stack value] pairs
 cur-stack == 0 at;
 input == 1 at;
+# a boolean that checks that the input equals to the current top value: A -> boolean
+input-is == [input] dip =;
 
 # applies a function to the top of the stack and returns a new stack: [stack value] func -> new-stack
 on-stack  == swap cur-stack uncons [swap i] dip cons;
