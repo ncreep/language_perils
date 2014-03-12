@@ -216,15 +216,4 @@ run-state-table-from-stack == [
 # a no-op to be used as a visual delimiter
 , == ;
 
-# checks whether the current stack is empty: -> boolean
-no-stack == stack null;
-
-n-zero-ones == 
-    @   '0   |     '1    | 'x |
-[p] : ['z p] | [pop  q] | [[no-stack] [r] [f] ifte] |  
-[q] : [f]    | [pop q]  | [[no-stack] [r] [f] ifte] |  
-[r] : [r]    |      [r] | [r] | 
-[f] : [f]    |      [f] | [f] |  
-
-;   
 .
