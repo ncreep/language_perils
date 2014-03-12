@@ -6,6 +6,8 @@ A state is a 2 items list, where the first item is the value,
 the second is a transition function.
 The state transition function takes a pair of stack and current value, and produces a new stack and state:
 [stack value] -> new-stack new-state
+
+States are run using the 'run-state' function. See 'baby_state_machine.joy' for an example.
 *)
 
 state-value == 0 at;
@@ -37,6 +39,7 @@ run-state == [] run-state-from-stack;
 # manipulation of [stack value] pairs
 cur-stack == 0 at;
 input == 1 at;
+
 # a boolean that checks that the input equals to the current top value: A -> boolean
 input-is == [input] dip =;
 
