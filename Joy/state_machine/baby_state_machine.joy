@@ -5,7 +5,7 @@ A state machine that describes the behavior of babies.
 
 Example usage:
 
-["soothe" "feed" "sing-lullaby" "feed"] [sleepy] run-baby-table.
+["soothe" "feed" "sing-lullaby" "feed"] sleepy run-baby-state.
 *)
 DEFINE 
 
