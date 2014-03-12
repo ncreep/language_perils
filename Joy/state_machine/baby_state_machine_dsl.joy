@@ -25,12 +25,12 @@ should-call-sw == [max-mistakes >=] [call-sw] [wrong crying] ifte;
 # 'call-sw' stands for "call social worker"
 
 baby == 
-          @   "sing-lullaby"  |       "feed"      |    "soothe"     |
- [sleepy] : [  right, asleep  ]|[  wrong, crying ]|[ wrong, crying ]|
- [hungry] : [  wrong, crying  ]|[  right, asleep ]|[ wrong, crying ]|
- [asleep] : [  wrong, crying  ]|[  wrong, crying ]|[ wrong, crying ]|
- [crying] : [ should-call-sw  ]|[ should-call-sw ]|[ right, asleep ]|
-[call-sw] : [    call-sw      ]|[    call-sw     ]|[    call-sw    ]|
+          @    "sing-lullaby"   |       "feed"      |    "soothe"     |
+ [sleepy] : [  right, asleep   ]|[  wrong, crying  ]|[ wrong, crying ]|
+ [hungry] : [  wrong, crying   ]|[  right, asleep  ]|[ wrong, crying ]|
+ [asleep] : [  wrong, crying   ]|[  wrong, crying  ]|[ wrong, crying ]|
+ [crying] : [ should-call-sw?  ]|[ should-call-sw? ]|[ right, asleep ]|
+[call-sw] : [    call-sw       ]|[     call-sw     ]|[    call-sw    ]|
 ;
 
 .

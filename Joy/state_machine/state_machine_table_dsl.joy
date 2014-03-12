@@ -213,7 +213,8 @@ run-state-table-from-stack == [
 # the starting value for the description of a state machine
 @ == [[]];
 
-# a no-op to be used as a visual delimiter
+# no-ops to be used as a visual delimiters
 , == ;
+? == ;
 
 .
