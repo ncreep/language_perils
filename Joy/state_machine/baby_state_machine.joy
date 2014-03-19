@@ -19,9 +19,9 @@ max-mistakes == 3;
 wrong == [succ] on-stack;
 right == [pred] on-stack;
 
-# the baby decides whether he/she needs to call a social worker
+# the baby decides whether it needs to call a social worker
 should-call-social-worker == 
-  [cur-stack first max-fail >=] 
+  [cur-stack first max-mistakes >=] 
   [cur-stack call-social-worker] 
   [wrong crying] ifte;
   
@@ -49,10 +49,6 @@ crying == ["crying" [[
   [["soothe" input-is] right asleep]
 ] condn]];
 
-call-social-worker == ["call-social-worker" [[
-  [["sing-lullaby" input-is] cur-stack call-social-worker]
-  [["feed" input-is] cur-stack call-social-worker]
-  [["soothe" input-is] cur-stack call-social-worker]
-] condn]];
+call-social-worker == ["call-social-worker" [cur-stack call-social-worker]];
 
 .

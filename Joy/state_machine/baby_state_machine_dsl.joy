@@ -20,7 +20,7 @@ wrong == succ;
 right == pred;
 
 
-# the baby decides whether he/she needs to call a social worker
+# the baby decides whether it needs to call a social worker
 should-call-sw == [max-mistakes >=] [call-sw] [wrong crying] ifte;
 
 # 'call-sw' stands for "call social worker"
