@@ -10,7 +10,10 @@ The state transition function takes a pair of stack and current value, and produ
 States are run using the 'run-state' function. See 'baby_state_machine.joy' for an example.
 *)
 
+# fetch the state value
 state-value == 0 at;
+
+# fetch the transition function
 next-state == 1 at;
 
 # moves the first element from one list into a list pair with the second argument: [x rest] y -> [rest] [y x]
