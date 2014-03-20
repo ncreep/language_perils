@@ -20,7 +20,7 @@ An example of a simple state machine:
 
 test == 
     @   1  |  2  |  3  |
-[a] : [ a ]|[ b ]|[ a ]| 
+[a] : [ a ]|[ b ]|[ a ]|
 [b] : [ b ]|[ a ]|[ b ]|
 ;
 
