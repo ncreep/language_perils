@@ -58,7 +58,7 @@ Family is important, and as programmers we should strive to help other programme
 
 So, we'll implement a state machine that totally realistically models the behavior of a typical baby. Our baby has a number of possible states: sleepy, hungry, asleep and crying. Obviously, the last one is the most common. Our main goal is to choose the right action to get the baby to fall asleep. We have a number of actions that we can do with the baby, these are the inputs to the state machine: sing a lullaby, feed and soothe. To make this more realistic, our baby is going to ~~be vindictive~~ have a memory. The baby is going to keep count for every time we mess up and choose the wrong action. Once we've messed up too many times, the baby is going to call a social worker. Calling a social worker will be counted as yet another state of a baby. Let us show our baby's behavior using a table:
 
-<pre>
+<pre id="baby-table">
              || sleepy | hungry | asleep |          crying            | call social worker |
 ============================================================================================
 sing lullaby || asleep | crying | crying | should call social worker? | call social worker |
@@ -70,6 +70,7 @@ The header row contains the possible states of the baby; the first column has th
 
 This sums up the behavior of a typical baby in a completely life-like fashion. Now, we can try and write it down as real code (which can be found in [baby_state_machine.joy](https://github.com/ncreep/language_perils/blob/master/Joy/state_machine/baby_state_machine.joy)):
 
+<div id="baby-states">
 ```
 sleepy == ["sleepy" [[
   [["sing-lullaby" input-is] right asleep]
@@ -97,6 +98,7 @@ crying == ["crying" [[
 
 call-social-worker == ["call-social-worker" [cur-stack call-social-worker]];
 ```
+</div>
 
 Well, that sucked... If you squint hard enough, you may recognize our state machine from before, but there's a whole lot of noise obscuring it from us. 
 
