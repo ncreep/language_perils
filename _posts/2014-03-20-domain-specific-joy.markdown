@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Domain-specific Joy"
-date: 2014-03-19 05:10:59 +0200
+date: 2014-03-20 05:10:59 +0200
 comments: true
 categories: [Joy, stack-based, concatenative, state machine, domain-specific language, DSL]
 ---
