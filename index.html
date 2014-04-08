@@ -9,7 +9,7 @@
   <meta name="author" content="Daniel Beskin">
 
   
-  <meta name="description" content="In the previous post I was struggling with the noise generated in my code by stack manipulation-related functions. Having reached a dead end, I &hellip;">
+  <meta name="description" content="Having finished with binary trees and getting somewhat sidetracked by metaprogramming, we are now ready for our next small project. Implementing &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -21,7 +21,7 @@
   <link rel="canonical" href="http://ncreep.github.io/language_perils/index.html">
   <link href="/language_perils/favicon.png" rel="icon">
   <link href="/language_perils/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <script src="/language_perils/javascripts/modernizr-2.0.js"></script>
+  <script src="/language_perils/javascripts/modernizr.js"></script>
   <script src="/language_perils/javascripts/ender.js"></script>
   <script src="/language_perils/javascripts/octopress.js" type="text/javascript"></script>
   <link href="/language_perils/atom.xml" rel="alternate" title="Language Perils" type="application/atom+xml">
@@ -47,7 +47,7 @@
 
 <body   >
   <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/language_perils/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  <li><a href="/language_perils/atom.xml" rel="subscribe-rss" title="subscribe via RSS"></a></li>
   
 </ul>
   
@@ -81,6 +81,53 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/language_perils/blog/2014-03-19-state-of-joy.html">State of Joy</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-19T01:54:19+02:00" pubdate data-updated="true">Mar 19<span>th</span>, 2014</time>
+        
+         | <a href="/language_perils/blog/2014-03-19-state-of-joy.html#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Having finished with <a href="/language_perils/blog/2013-04-21-joyous-tree-friends.html">binary trees</a> and getting somewhat sidetracked by <a href="/language_perils/blog/2013-05-24-meta-joy.html">metaprogramming</a>, we are now ready for our next small project. Implementing binary trees was sort of a warm-up for getting used to Joy &ndash; now I would like to do something a bit less textbooky.</p>
+
+<p>As you may recall, Joy has a very flexible syntax due to its homoiconicity (as can be seen in the metaprogramming post). Having a flexible syntax should make a language easily amenable to embedding of <a href="http://en.wikipedia.org/wiki/Domain-specific_language">domain-specific languages</a> (DSLs). Personally, I&rsquo;m a big fan of DSLs, so trying to implement one in Joy seems like a nice idea for a small project.</p>
+
+<p>In order to actually have a domain-specific language, we first need to come up with a domain. Having gone through a careful process of examining and comparing various domains (i.e., choosing the first thing that randomly came up in my mind at some distant point in time), I decided to model <a href="http://en.wikipedia.org/wiki/State_machine">state machines</a>. More specifically, I&rsquo;ll be implementing a small language that can describe state machines augmented by a stack, which makes it a <a href="http://en.wikipedia.org/wiki/Pushdown_automaton">pushdown automaton</a>. Adding a stack to our machine seems like a natural idea for a stack-based language and also makes the domain a tad more interesting; we&rsquo;ll see how that works out later on.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/language_perils/blog/2014-03-19-state-of-joy.html">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/language_perils/blog/2013-05-24-meta-joy.html">Meta-Joy</a></h1>
     
     
@@ -106,9 +153,9 @@
   </header>
 
 
-  <div class="entry-content"><p>In the <a href="/language_perils/blog/2013-04-21-joyous-tree-friends.html">previous post</a> I was struggling with the noise generated in my code by stack manipulation-related functions. Having reached a dead end, I promised you a shiny new direction, which I&#8217;ll be introducing in this post.</p>
+  <div class="entry-content"><p>In the <a href="/language_perils/blog/2013-04-21-joyous-tree-friends.html">previous post</a> I was struggling with the noise generated in my code by stack manipulation-related functions. Having reached a dead end, I promised you a shiny new direction, which I&rsquo;ll be introducing in this post.</p>
 
-<p>To do that, we&#8217;ll have to recap one of the Joy basics, namely, its homoiconicity. In the <a href="/language_perils/blog/2013-03-18-the-joy-of-joy.html">introduction</a>, I mentioned how Joy&#8217;s list primitive is actually a quoted program; this should be familiar if you&#8217;re acquainted with Lisp lists. So&#8230; we can easily go meta on the language by employing list manipulation. Here&#8217;s a simple example to illustrate the point:</p>
+<p>To do that, we&rsquo;ll have to recap one of the Joy basics, namely, its homoiconicity. In the <a href="/language_perils/blog/2013-03-18-the-joy-of-joy.html">introduction</a>, I mentioned how Joy&rsquo;s list primitive is actually a quoted program; this should be familiar if you&rsquo;re acquainted with Lisp lists. So&hellip; we can easily go meta on the language by employing list manipulation. Here&rsquo;s a simple example to illustrate the point:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>[1 2] [+] concat i # =&gt; 3</span></code></pre></td></tr></table></div></figure>
@@ -161,7 +208,7 @@
 
 <p>As a first small project, I decided to try and implement a simple <a href="http://en.wikipedia.org/wiki/Binary_search_tree">binary search tree</a>. Nothing fancy, no self-balancing or anything <a href="http://j.rigelseven.com/read/67201/">evil like that</a>. Just your Plain Old Binary Search Tree (which can be handily abbreviated as POBST).</p>
 
-<p>The reason for this boring textbook example is twofold. First, Joy being, for me, a rather new way of thinking about code, I didn&#8217;t want to distract myself with something overly creative. Having a ready recipe for the thing I want to code provides me with a nice distraction-free, Joyful coding experience. Second, as Joy stresses function-level programming (no values and all that), I was wondering how a data structure, which I think of as a value, would look like in this paradigm.</p>
+<p>The reason for this boring textbook example is twofold. First, Joy being, for me, a rather new way of thinking about code, I didn&rsquo;t want to distract myself with something overly creative. Having a ready recipe for the thing I want to code provides me with a nice distraction-free, Joyful coding experience. Second, as Joy stresses function-level programming (no values and all that), I was wondering how a data structure, which I think of as a value, would look like in this paradigm.</p>
 
 </div>
   
@@ -207,11 +254,11 @@
   <div class="entry-content"><p><strong>Intro</strong>: <code>[swap  dip  dup  dip  pop]  dip  dup  dip  pop</code><br/>
 (sing aloud accompanied by a Jazz trio or even <em>a cappella</em>)</p>
 
-<p>Anyways, this is actual Joy source code, taken from the <a href="http://www.kevinalbrecht.com/code/joy-mirror/j02maf.html">Mathematical foundations of Joy</a> article. No, really, you&#8217;re not squinting hard enough, there is some actual math there.</p>
+<p>Anyways, this is actual Joy source code, taken from the <a href="http://www.kevinalbrecht.com/code/joy-mirror/j02maf.html">Mathematical foundations of Joy</a> article. No, really, you&rsquo;re not squinting hard enough, there is some actual math there.</p>
 
-<p>Well, this is my first language from the <a href="http://blog.fogus.me/2011/08/14/perlis-languages/">Perlis Languages</a> list.  It&#8217;s a concatenative language, colloquially known as a stack-based language (not sure what sort of person goes all colloquial about anything concatenative, probably the sort of person that uses the word &#8220;colloquial&#8221;). Stack-based languages tend to have very little in the sense of syntax, one may even call them &#8220;Lisp without the parentheses&#8221;. So that makes Joy a good candidate to be the first language for this little project; it&#8217;s rather simple and self-contained.  You can pretty much get all the material you might need to tackle Joy from the (mirror of) the <a href="http://www.kevinalbrecht.com/code/joy-mirror/joy.html">official site</a>. Other than that, as recommended by Fogus, there&#8217;s the really nice &#8221;<a href="http://www.codecommit.com/blog/category/cat">The Joy of Concatenative Languages</a>&#8221; series by <a href="http://www.codecommit.com">Daniel Spiewak</a>; although his language of choice is Cat, it still is, as usual for Daniel&#8217;s writings, a very instructive and fun read.</p>
+<p>Well, this is my first language from the <a href="http://blog.fogus.me/2011/08/14/perlis-languages/">Perlis Languages</a> list.  It&rsquo;s a concatenative language, colloquially known as a stack-based language (not sure what sort of person goes all colloquial about anything concatenative, probably the sort of person that uses the word &ldquo;colloquial&rdquo;). Stack-based languages tend to have very little in the sense of syntax, one may even call them &ldquo;Lisp without the parentheses&rdquo;. So that makes Joy a good candidate to be the first language for this little project; it&rsquo;s rather simple and self-contained.  You can pretty much get all the material you might need to tackle Joy from the (mirror of) the <a href="http://www.kevinalbrecht.com/code/joy-mirror/joy.html">official site</a>. Other than that, as recommended by Fogus, there&rsquo;s the really nice &ldquo;<a href="http://www.codecommit.com/blog/category/cat">The Joy of Concatenative Languages</a>&rdquo; series by <a href="http://www.codecommit.com">Daniel Spiewak</a>; although his language of choice is Cat, it still is, as usual for Daniel&rsquo;s writings, a very instructive and fun read.</p>
 
-<p>Let&#8217;s take a quick tour of Joy, though for a proper introduction you should consult the <a href="http://www.kevinalbrecht.com/code/joy-mirror/j01tut.html">official one</a>.</p>
+<p>Let&rsquo;s take a quick tour of Joy, though for a proper introduction you should consult the <a href="http://www.kevinalbrecht.com/code/joy-mirror/j01tut.html">official one</a>.</p>
 
 </div>
   
@@ -254,21 +301,21 @@
   </header>
 
 
-  <div class="entry-content"><p>I like programming languages, and I just couldn&#8217;t find a proper excuse to learn them. So I decided to go on and learn them without an excuse.</p>
+  <div class="entry-content"><p>I like programming languages, and I just couldn&rsquo;t find a proper excuse to learn them. So I decided to go on and learn them without an excuse.</p>
 
-<p>My first attempt at doing so was via the amazing book by <a href="http://rapidred.com/">Bruce Tate</a>, &#8221;<a href="http://www.amazon.com/gp/product/193435659X/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=193435659X&amp;linkCode=as2&amp;tag=languperil-20">Seven Languages in Seven Weeks</a>&#8221; (great read, highly recommended).</p>
+<p>My first attempt at doing so was via the amazing book by <a href="http://rapidred.com/">Bruce Tate</a>, &ldquo;<a href="http://www.amazon.com/gp/product/193435659X/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=193435659X&amp;linkCode=as2&amp;tag=languperil-20">Seven Languages in Seven Weeks</a>&rdquo; (great read, highly recommended).</p>
 
-<p>After sparking my initial interest in learning programming languages for fun (and ruining my ability to calmly write plain old Java), that book left me with an itch for more. The itch kept on spreading when I came across a blog post &#8221;<a href="http://blog.fogus.me/2011/08/14/perlis-languages/">Perlis Languages</a>&#8221; by the brilliant <a href="http://www.fogus.me/">Fogus</a>, go on and read it.</p>
+<p>After sparking my initial interest in learning programming languages for fun (and ruining my ability to calmly write plain old Java), that book left me with an itch for more. The itch kept on spreading when I came across a blog post &ldquo;<a href="http://blog.fogus.me/2011/08/14/perlis-languages/">Perlis Languages</a>&rdquo; by the brilliant <a href="http://www.fogus.me/">Fogus</a>, go on and read it.</p>
 
-<p>As I personally almost never go on and read stuff pointed to in posts, I&#8217;ll give a quick recap of that post here.</p>
+<p>As I personally almost never go on and read stuff pointed to in posts, I&rsquo;ll give a quick recap of that post here.</p>
 
 <p>It starts off with a quote by Alan Perlis:</p>
 
-<blockquote><p>A language that doesn&#8217;t affect the way you think about programming is not worth knowing.</p></blockquote>
+<blockquote><p>A language that doesn&rsquo;t affect the way you think about programming is not worth knowing.</p></blockquote>
 
-<p>Next, Fogus goes on to explain how one can and should expand one&#8217;s views on software development, namely, by learning &#8220;Perlis Languages&#8221;:</p>
+<p>Next, Fogus goes on to explain how one can and should expand one&rsquo;s views on software development, namely, by learning &ldquo;Perlis Languages&rdquo;:</p>
 
-<blockquote><p>A Perlis Language is a programming language that I believe will shake one&#8217;s views on software development to the core.</p></blockquote>
+<blockquote><p>A Perlis Language is a programming language that I believe will shake one&rsquo;s views on software development to the core.</p></blockquote>
 
 </div>
   
@@ -294,6 +341,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/language_perils/blog/2014-03-19-state-of-joy.html">State of Joy</a>
+      </li>
+    
+      <li class="post">
         <a href="/language_perils/blog/2013-05-24-meta-joy.html">Meta-Joy</a>
       </li>
     
@@ -316,14 +367,13 @@
 
 
 
-
   
 </aside>
 
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - Daniel Beskin -
+  Copyright &copy; 2014 - Daniel Beskin -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

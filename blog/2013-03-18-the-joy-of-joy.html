@@ -22,7 +22,7 @@
   <link rel="canonical" href="http://ncreep.github.io/language_perils/blog/2013-03-18-the-joy-of-joy.html">
   <link href="/language_perils/favicon.png" rel="icon">
   <link href="/language_perils/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <script src="/language_perils/javascripts/modernizr-2.0.js"></script>
+  <script src="/language_perils/javascripts/modernizr.js"></script>
   <script src="/language_perils/javascripts/ender.js"></script>
   <script src="/language_perils/javascripts/octopress.js" type="text/javascript"></script>
   <link href="/language_perils/atom.xml" rel="alternate" title="Language Perils" type="application/atom+xml">
@@ -48,7 +48,7 @@
 
 <body   >
   <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/language_perils/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  <li><a href="/language_perils/atom.xml" rel="subscribe-rss" title="subscribe via RSS"></a></li>
   
 </ul>
   
@@ -107,11 +107,11 @@
 <div class="entry-content"><p><strong>Intro</strong>: <code>[swap  dip  dup  dip  pop]  dip  dup  dip  pop</code><br/>
 (sing aloud accompanied by a Jazz trio or even <em>a cappella</em>)</p>
 
-<p>Anyways, this is actual Joy source code, taken from the <a href="http://www.kevinalbrecht.com/code/joy-mirror/j02maf.html">Mathematical foundations of Joy</a> article. No, really, you&#8217;re not squinting hard enough, there is some actual math there.</p>
+<p>Anyways, this is actual Joy source code, taken from the <a href="http://www.kevinalbrecht.com/code/joy-mirror/j02maf.html">Mathematical foundations of Joy</a> article. No, really, you&rsquo;re not squinting hard enough, there is some actual math there.</p>
 
-<p>Well, this is my first language from the <a href="http://blog.fogus.me/2011/08/14/perlis-languages/">Perlis Languages</a> list.  It&#8217;s a concatenative language, colloquially known as a stack-based language (not sure what sort of person goes all colloquial about anything concatenative, probably the sort of person that uses the word &#8220;colloquial&#8221;). Stack-based languages tend to have very little in the sense of syntax, one may even call them &#8220;Lisp without the parentheses&#8221;. So that makes Joy a good candidate to be the first language for this little project; it&#8217;s rather simple and self-contained.  You can pretty much get all the material you might need to tackle Joy from the (mirror of) the <a href="http://www.kevinalbrecht.com/code/joy-mirror/joy.html">official site</a>. Other than that, as recommended by Fogus, there&#8217;s the really nice &#8221;<a href="http://www.codecommit.com/blog/category/cat">The Joy of Concatenative Languages</a>&#8221; series by <a href="http://www.codecommit.com">Daniel Spiewak</a>; although his language of choice is Cat, it still is, as usual for Daniel&#8217;s writings, a very instructive and fun read.</p>
+<p>Well, this is my first language from the <a href="http://blog.fogus.me/2011/08/14/perlis-languages/">Perlis Languages</a> list.  It&rsquo;s a concatenative language, colloquially known as a stack-based language (not sure what sort of person goes all colloquial about anything concatenative, probably the sort of person that uses the word &ldquo;colloquial&rdquo;). Stack-based languages tend to have very little in the sense of syntax, one may even call them &ldquo;Lisp without the parentheses&rdquo;. So that makes Joy a good candidate to be the first language for this little project; it&rsquo;s rather simple and self-contained.  You can pretty much get all the material you might need to tackle Joy from the (mirror of) the <a href="http://www.kevinalbrecht.com/code/joy-mirror/joy.html">official site</a>. Other than that, as recommended by Fogus, there&rsquo;s the really nice &ldquo;<a href="http://www.codecommit.com/blog/category/cat">The Joy of Concatenative Languages</a>&rdquo; series by <a href="http://www.codecommit.com">Daniel Spiewak</a>; although his language of choice is Cat, it still is, as usual for Daniel&rsquo;s writings, a very instructive and fun read.</p>
 
-<p>Let&#8217;s take a quick tour of Joy, though for a proper introduction you should consult the <a href="http://www.kevinalbrecht.com/code/joy-mirror/j01tut.html">official one</a>.</p>
+<p>Let&rsquo;s take a quick tour of Joy, though for a proper introduction you should consult the <a href="http://www.kevinalbrecht.com/code/joy-mirror/j01tut.html">official one</a>.</p>
 
 <!-- more -->
 
@@ -122,7 +122,7 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>3 4 + 5 *</span></code></pre></td></tr></table></div></figure>
 
 
-<p>(Note that to actually evaluate the snippet in the Joy interpreter, you&#8217;ll need to put a period at the end, as in <code>3 4 + 5 * .</code>, but I&#8217;ll be omitting it here).</p>
+<p>(Note that to actually evaluate the snippet in the Joy interpreter, you&rsquo;ll need to put a period at the end, as in <code>3 4 + 5 * .</code>, but I&rsquo;ll be omitting it here).</p>
 
 <p>The above happens to be 35. And that obviously screams at you with the horrid unnaturalness of the out-of-order operators. Of course, the average programmer, being to some extent a form of a humanoid, expects this to be written infix as in:</p>
 
@@ -130,27 +130,27 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>3 + 4 * 5</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Wait, that&#8217;s actually 23. Of course I meant to write:</p>
+<p>Wait, that&rsquo;s actually 23. Of course I meant to write:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>(3 + 4) * 5</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Now it&#8217;s all natural and pleasing to the eye. And that&#8217;s the last time in the Joy series that you&#8217;ll be seeing anything written infix, get used to it, sorry&#8230;</p>
+<p>Now it&rsquo;s all natural and pleasing to the eye. And that&rsquo;s the last time in the Joy series that you&rsquo;ll be seeing anything written infix, get used to it, sorry&hellip;</p>
 
-<p>Actually, there&#8217;s a whole thing based around RPN having no precedence issues; it allows one to compose programs (functions) by just <em>concatenating</em> their sources - no need to worry about any missing parentheses. And that&#8217;s why you call them <em>concatenative</em> languages; the stack is actually an optional implementation detail.<br/>
+<p>Actually, there&rsquo;s a whole thing based around RPN having no precedence issues; it allows one to compose programs (functions) by just <em>concatenating</em> their sources &ndash; no need to worry about any missing parentheses. And that&rsquo;s why you call them <em>concatenative</em> languages; the stack is actually an optional implementation detail.<br/>
 Having crossed the RPN chasm, we can continue to some Joy basics.</p>
 
-<p>We&#8217;ve already seen number literals and arithmetic operators. We also have the usual boolean values <code>true</code> and <code>false</code>; string literals are written in double quotes, and characters are prefixed with a single quote. So the following snippet yields <code>true</code>:</p>
+<p>We&rsquo;ve already seen number literals and arithmetic operators. We also have the usual boolean values <code>true</code> and <code>false</code>; string literals are written in double quotes, and characters are prefixed with a single quote. So the following snippet yields <code>true</code>:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>"abcd" 1 at 'b equal</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Now I&#8217;ll pretend that you know practically nothing about stacks and explain this snippet step by step. Having done that, I&#8217;ll assume that by some miracle, you are now fluent in everything stack, and I wouldn&#8217;t be bothered to give any more accounts of the source at such level of detail. Ready? Here we go:<br/>
-The first word pushes <code>"abcd"</code> onto the stack; the second <code>1</code>. <code>at</code> looks at the last two things on the stack and treats the top one as a (zero based) index and the one below it as a string (or a list, we&#8217;ll get to those in a bit). It then pops them off and leaves on top the character at the indexed position, in our case <code>'b</code>. Next we push another <code>'b</code> onto the top of the stack and test the equality of the top two items on the stack with <code>equal</code>, popping them off and pushing the result (<code>true</code>) onto the top.</p>
+<p>Now I&rsquo;ll pretend that you know practically nothing about stacks and explain this snippet step by step. Having done that, I&rsquo;ll assume that by some miracle, you are now fluent in everything stack, and I wouldn&rsquo;t be bothered to give any more accounts of the source at such level of detail. Ready? Here we go:<br/>
+The first word pushes <code>"abcd"</code> onto the stack; the second <code>1</code>. <code>at</code> looks at the last two things on the stack and treats the top one as a (zero based) index and the one below it as a string (or a list, we&rsquo;ll get to those in a bit). It then pops them off and leaves on top the character at the indexed position, in our case <code>'b</code>. Next we push another <code>'b</code> onto the top of the stack and test the equality of the top two items on the stack with <code>equal</code>, popping them off and pushing the result (<code>true</code>) onto the top.</p>
 
-<p>Feeling fluent now? Great, moving on&#8230;</p>
+<p>Feeling fluent now? Great, moving on&hellip;</p>
 
 <p>Next we have list literals, written in square brackets, so this yields 3:</p>
 
@@ -160,7 +160,7 @@ The first word pushes <code>"abcd"</code> onto the stack; the second <code>1</co
 
 <p>Lists are heterogeneous and can contain anything, so this <code>[1 'c 2 "abc" [1 2 3] 5]</code> is a valid list.</p>
 
-<p>Set literals can be written in curly brackets, as in <code>{1 2 3}</code>, but they can only contain &#8220;small integers&#8221;, so I didn&#8217;t really have any use for them further down the road (too bad you can&#8217;t plug in other implementations into this syntax, oh well&#8230;).</p>
+<p>Set literals can be written in curly brackets, as in <code>{1 2 3}</code>, but they can only contain &ldquo;small integers&rdquo;, so I didn&rsquo;t really have any use for them further down the road (too bad you can&rsquo;t plug in other implementations into this syntax, oh well&hellip;).</p>
 
 <p>There is also a whole array of stack manipulation functions, such as swapping and duplicating items on the stack. So the following yields the square of 4:</p>
 
@@ -172,14 +172,14 @@ The first word pushes <code>"abcd"</code> onto the stack; the second <code>1</co
 
 <p><strong>Interlude</strong>: <code>[[dup  dip  pop]  dip]  dip  swap  dip  dup  dip  pop</code></p>
 
-<p>Now come the interesting bits - the lists introduced above are not plain lists, they are quoted programs (think Lisp lists). This means that the list <code>[4 dup *]</code> is actually a value representing the program above; it can be passed around and evaluated at will. Evaluation is accomplished via <em>combinators</em>. These take quoted programs as input and use them to calculate new values.<br/>
+<p>Now come the interesting bits &ndash; the lists introduced above are not plain lists, they are quoted programs (think Lisp lists). This means that the list <code>[4 dup *]</code> is actually a value representing the program above; it can be passed around and evaluated at will. Evaluation is accomplished via <em>combinators</em>. These take quoted programs as input and use them to calculate new values.<br/>
 The simplest combinator is <code>i</code>; it just evaluates (unquotes) the quoted program at the top of the stack, like this:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>[4 dup *] i # =&gt; 16</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Let&#8217;s look at a slightly more interesting example. The combinator <code>map</code> takes a quoted program and applies it to the elements of a list:</p>
+<p>Let&rsquo;s look at a slightly more interesting example. The combinator <code>map</code> takes a quoted program and applies it to the elements of a list:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>[1 2 3 4] [dup *] map # =&gt; [1 4 9 16]</span></code></pre></td></tr></table></div></figure>
@@ -187,16 +187,16 @@ The simplest combinator is <code>i</code>; it just evaluates (unquotes) the quot
 
 <p>The above is one of the most common use cases for higher order functions, so we got that topic covered.</p>
 
-<p>By now, you might&#8217;ve noticed the conspicuous lack of control structures, guess what, these are also implemented with combinators. The standard <code>if then else</code> form looks like:</p>
+<p>By now, you might&rsquo;ve noticed the conspicuous lack of control structures, guess what, these are also implemented with combinators. The standard <code>if then else</code> form looks like:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>1500 [1000 &gt;]  [2 /]  [3 *]  ifte  # =&gt; 750</span></code></pre></td></tr></table></div></figure>
 
 
 <p>The first list is the condition, which is checked against the top of the stack (in this case 1500). If the condition is met, we apply the second quote to the top of the stack, otherwise the third.<br/>
-It takes a little time to get used to this sort of syntax, but after you get it, there&#8217;s a whole world of flexibility here&#8230;</p>
+It takes a little time to get used to this sort of syntax, but after you get it, there&rsquo;s a whole world of flexibility here&hellip;</p>
 
-<p>The last type of combinators we&#8217;ll look at are recursive combinators. These allow one to create recursive functions using anonymous recursion. The most basic recursive combinator is <code>linrec</code>, which performs linear recursion. The textbook example for linear recursion is the factorial, implementing it with <code>linrec</code> we get</p>
+<p>The last type of combinators we&rsquo;ll look at are recursive combinators. These allow one to create recursive functions using anonymous recursion. The most basic recursive combinator is <code>linrec</code>, which performs linear recursion. The textbook example for linear recursion is the factorial, implementing it with <code>linrec</code> we get</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>[null]  [succ]  [dup pred]  [*]  linrec</span></code></pre></td></tr></table></div></figure>
@@ -204,14 +204,14 @@ It takes a little time to get used to this sort of syntax, but after you get it,
 
 <p>The first quote is the <code>if</code> part, it checks for the base case (here, whether the current argument is 0). The second quote is the <code>then</code> part, which is executed when we reach the base case (here, when we reach 0, we take its successor, 1, and leave it on the stack). The last two quotes are the <code>else1</code> and <code>else2</code> parts. The first is executed before we take the recursive step; in here we duplicate the argument and take the predecessor of the copy. The second quote is executed after the recursion step, in this case we multiply the top two items on the stack. To sum up, we are recursively filling up the stack with the numbers from the given argument down to 1, then, when we back up, we are multiplying them in pairs leaving the result on top all the time, until we reach the original value. The last multiplication step gives us the value of the factorial at the top of the stack.</p>
 
-<p>I found combinators to be my biggest stumbling block on the path to readability - when looking at a new combinator, you really haven&#8217;t a chance of figuring out its purpose unless its name is very obvious or you have its documentation at hand. Take this for example:</p>
+<p>I found combinators to be my biggest stumbling block on the path to readability &ndash; when looking at a new combinator, you really haven&rsquo;t a chance of figuring out its purpose unless its name is very obvious or you have its documentation at hand. Take this for example:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>[1]  [*]  primrec</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Can you guess what that function does? It happens to be the very same factorial function from before, implemented with a specialized version of <code>linrec</code>; it wasn&#8217;t that obvious to me&#8230;<br/>
-As you know, with great flexibility come great code obfuscation powers. But also, great DSL powers, and I really like DSLs, so overall, I&#8217;m sure the whole combinators thing works out fine.</p>
+<p>Can you guess what that function does? It happens to be the very same factorial function from before, implemented with a specialized version of <code>linrec</code>; it wasn&rsquo;t that obvious to me&hellip;<br/>
+As you know, with great flexibility come great code obfuscation powers. But also, great DSL powers, and I really like DSLs, so overall, I&rsquo;m sure the whole combinators thing works out fine.</p>
 
 <p>There are plenty more useful functions and combinators; you can see the whole standard library <a href="http://www.kevinalbrecht.com/code/joy-mirror/html-manual.html">here</a>.</p>
 
@@ -233,10 +233,10 @@ As you know, with great flexibility come great code obfuscation powers. But also
 </span><span class='line'>5 factorial # =&gt; 120</span></code></pre></td></tr></table></div></figure>
 
 
-<p>There are also some modularization/information hiding facilities built in, but I won&#8217;t be using them here, so moving right along.</p>
+<p>There are also some modularization/information hiding facilities built in, but I won&rsquo;t be using them here, so moving right along.</p>
 
-<p>This sums up my not so brief but definitely incomplete introduction to Joy. The most glaring thing I glossed over is the mathematical foundations of Joy. It so happens that Joy is a function-level programming language, in the sense that there are no values in the language, just functions. No, <code>42</code> is not a value, <code>42</code> is a function that takes a stack and returns a new stack with the value <code>42</code> on top. So without noticing it, all along we&#8217;ve been composing functions and not just that - we&#8217;ve been using point-free style while at it.<br/>
-Although I didn&#8217;t delve deep into the maths myself, its presence definitely makes me feel better. I like it when a language is well thought through; such elegance can only come from math.</p>
+<p>This sums up my not so brief but definitely incomplete introduction to Joy. The most glaring thing I glossed over is the mathematical foundations of Joy. It so happens that Joy is a function-level programming language, in the sense that there are no values in the language, just functions. No, <code>42</code> is not a value, <code>42</code> is a function that takes a stack and returns a new stack with the value <code>42</code> on top. So without noticing it, all along we&rsquo;ve been composing functions and not just that &ndash; we&rsquo;ve been using point-free style while at it.<br/>
+Although I didn&rsquo;t delve deep into the maths myself, its presence definitely makes me feel better. I like it when a language is well thought through; such elegance can only come from math.</p>
 
 <p>All together now:<br/>
 <strong>Outro</strong>: <code>[dup dip pop]  dip  dup  dip  pop</code></p>
@@ -313,6 +313,10 @@ Although I didn&#8217;t delve deep into the maths myself, its presence definitel
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/language_perils/blog/2014-03-19-state-of-joy.html">State of Joy</a>
+      </li>
+    
+      <li class="post">
         <a href="/language_perils/blog/2013-05-24-meta-joy.html">Meta-Joy</a>
       </li>
     
@@ -335,7 +339,6 @@ Although I didn&#8217;t delve deep into the maths myself, its presence definitel
 
 
 
-
   
 </aside>
 
@@ -343,7 +346,7 @@ Although I didn&#8217;t delve deep into the maths myself, its presence definitel
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - Daniel Beskin -
+  Copyright &copy; 2014 - Daniel Beskin -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
