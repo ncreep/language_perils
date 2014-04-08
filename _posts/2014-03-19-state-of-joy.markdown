@@ -52,7 +52,7 @@ And that's all we need to evaluate a state machine. To see that it actually work
 
 *(cue the narrator)*
 
-Family is important, and as programmers, we should strive to help other programmers deal with realistic scenarios that come up in family life. In this installment of our "Family for Geeks", we'll see how to deal with babies.
+>Family is important, and as programmers, we should strive to help other programmers deal with realistic scenarios that come up in family life. In this installment of our "Family for Geeks", we'll see how to deal with babies.
 
 *(fading out with happy jingle music)*
 
