@@ -141,4 +141,4 @@ All that aside, we can actually execute our state machine with the following cod
 The first argument is the input list, the second is the state we start from.  
 So at least it works as expected.
 
-This concludes the exposition of the domain, in the next [installment]({% post_url 2014-03-20-domain-specific-joy %}) we'll try to come up with an actual language specific to it.
+This concludes the exposition of the domain, in the next installment we'll try to come up with an actual language specific to it.

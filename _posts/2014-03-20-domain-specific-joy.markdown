@@ -3,6 +3,7 @@ layout: post
 title: "Domain-specific Joy"
 date: 2014-03-20 05:10:59 +0200
 comments: true
+published: false
 categories: [Joy, stack-based, concatenative, state machine, domain-specific language, DSL]
 ---
 

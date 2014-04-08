@@ -3,7 +3,9 @@ layout: post
 title: "Joy No More"
 date: 2014-03-24 03:46:15 +0200
 comments: true
+published: false
 categories: [Joy, stack-based, concatenative]
+
 ---
 
 I've reached the end of my Joy escapade. I can definitely say that I had a great time (notice how I avoided one of my well trodden puns here) figuring out this nifty little language.
