@@ -230,4 +230,4 @@ This concludes our excursion into the world of DSLs. As we experienced firsthand
 
 Using Joy for this purpose made the experience very lightweight, the whole definition of the DSL is about 100 lines of code. Minimal syntax and the corresponding homoiconicity make a language very amenable to embedding DSLs into it. I think our little exercise definitely demonstrates this point.
 
-This also concludes my excursion into Joy, in the [next post]({% post_url 2014-03-24-joy-no-more %}), I'll sum up the experience.
+This also concludes my excursion into Joy, in the next post, I'll sum up the experience.
