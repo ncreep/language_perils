@@ -107,7 +107,7 @@ build-tree-with-value == rollup swap [
 	[ [dup right-tree rollupd] [swapd insert-right] ]
 ] condlinrec popd
 
-add-val == [[pop [[] []] cons] [popd]] build-tree-with-value;
+add-val == [[pop [[] []] cons] [popd]] build-tree-with-value
 delete-val == [[popd] [popd delete-tree]] build-tree-with-value
 ```
 Bugger me - I can't quite read this, and I wrote that not that long ago.  
