@@ -4,7 +4,7 @@
   <title><![CDATA[Category: binary tree | Language Perils]]></title>
   <link href="http://ncreep.github.io/language_perils/blog/categories/binary-tree/atom.xml" rel="self"/>
   <link href="http://ncreep.github.io/language_perils/"/>
-  <updated>2014-04-18T00:21:31+03:00</updated>
+  <updated>2014-05-21T17:03:38+03:00</updated>
   <id>http://ncreep.github.io/language_perils/</id>
   <author>
     <name><![CDATA[Daniel Beskin]]></name>
@@ -119,7 +119,7 @@ build-tree-with-value == rollup swap [
 	[ [dup right-tree rollupd] [swapd insert-right] ]
 ] condlinrec popd
 
-add-val == [[pop [[] []] cons] [popd]] build-tree-with-value;
+add-val == [[pop [[] []] cons] [popd]] build-tree-with-value
 delete-val == [[popd] [popd delete-tree]] build-tree-with-value
 ```
 Bugger me - I can't quite read this, and I wrote that not that long ago.  

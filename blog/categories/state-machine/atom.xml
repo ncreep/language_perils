@@ -4,7 +4,7 @@
   <title><![CDATA[Category: state machine | Language Perils]]></title>
   <link href="http://ncreep.github.io/language_perils/blog/categories/state-machine/atom.xml" rel="self"/>
   <link href="http://ncreep.github.io/language_perils/"/>
-  <updated>2014-04-18T00:21:31+03:00</updated>
+  <updated>2014-05-21T17:03:38+03:00</updated>
   <id>http://ncreep.github.io/language_perils/</id>
   <author>
     <name><![CDATA[Daniel Beskin]]></name>
@@ -242,7 +242,7 @@ This concludes our excursion into the world of DSLs. As we experienced firsthand
 
 Using Joy for this purpose made the experience very lightweight, the whole definition of the DSL is about 100 lines of code. Minimal syntax and the corresponding homoiconicity make a language very amenable to embedding DSLs into it. I think our little exercise definitely demonstrates this point.
 
-This also concludes my excursion into Joy, in the next post, I'll sum up the experience.]]></content>
+This also concludes my excursion into Joy, in the [next post](/blog/2014-03-24-joy-no-more.html), I'll sum up the experience.]]></content>
   </entry>
   
   <entry>
