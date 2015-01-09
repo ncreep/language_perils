@@ -1,0 +1,31 @@
+flour := 0.48 g / ml
+bread := 0.29 g / ml
+potato := 0.59 g / ml
+coffee := 0.25 g / ml
+
+flourVals = [2.36, 0.589, 0.554, 0.491, 0.215, 0.230, 0.405]
+breadVals = [1.41, 0.243, 0.203, 0.143, 0.80, 0.86, 0.115]
+milkVals = [1.66, 0.659, 0.520, 0.412, 0.256, 0.282, 0.334]
+potatoVals = [5.79, 0.897, 0.718, 0.461, 0.239, 0.360, 0.630]
+coffeeVals = [4.16, 0.911, 0.753, 0.794, 0.212, 0.395, 0.470]
+sugarVals = [3.11, 0.648, 0.582, 0.487, 0.260, 0.305, 0.970]
+
+flourWeights = map[{ |x| x dollar / (5 lbs) }, flourVals]
+breadWeights = map[{ |x| x dollar / lbs }, breadVals]
+milkWeights = map[{ |x| x dollar / (1/2 gal milk) }, milkVals]
+potatoWeights = map[{ |x| x dollar / (10 lbs) }, potatoVals]
+coffeeWeights = map[{ |x| x dollar / lbs }, coffeeVals]
+sugarWeights = map[{ |x| x dollar / (5 lbs) }, sugarVals]
+
+flourVolumes = map[{ |x| x flour }, flourWeights]
+breadVolumes = map[{ |x| x bread }, breadWeights]
+milkVolumes = map[{ |x| x milk }, milkWeights]
+potatoVolumes = map[{ |x| x potato }, potatoWeights]
+coffeeVolumes = map[{ |x| x coffee }, coffeeWeights]
+sugarVolumes = map[{ |x| x sugar }, sugarWeights]
+
+for [x] = [flourWeights, breadWeights, milkWeights, potatoWeights, coffeeWeights, sugarWeights] 
+	println[x]
+
+for [x] = [flourVolumes, breadVolumes, milkVolumes, potatoVolumes, coffeeVolumes, sugarVolumes] 
+	println[x]
