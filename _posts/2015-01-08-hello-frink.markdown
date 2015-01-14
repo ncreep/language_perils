@@ -6,7 +6,7 @@ comments: true
 categories: Frink
 ---
 
-In this post I'll be introducing the [Frink](https://futureboy.us/frinkdocs/) programming language. As stated on Frink's homepage:
+In this post, I'll be introducing the [Frink](https://futureboy.us/frinkdocs/) programming language. As stated on Frink's homepage:
 
 >Frink is a practical calculating tool and programming language designed to make physical calculations simple, to help ensure that answers come out right, and to make a tool that's really useful in the real world. It tracks units of measure (feet, meters, kilograms, watts, etc.) through all calculations, allowing you to mix units of measure transparently, and helps you easily verify that your answers make sense. It also contains a large data file of physical quantities, freeing you from having to look them up, and freeing you to make effortless calculations without getting bogged down in the mechanics.
 
@@ -22,11 +22,11 @@ Although Frink is a full-featured programming language, including some support f
 
 First things first, anything Frink related, including documentation and an interpreter, can be found on its [homepage](https://futureboy.us/frinkdocs/). Simple calculations can be run directly on the [web interface](https://futureboy.us/fsp/frink.fsp). Having set up a working environment (note that Frink is very frequently updated, hopefully, the code written here won't get dated too soon), we can move on to the premises of our exploratory session.
 
-Clarification: the author of this text is not completely out of his mind, despite evidence to the contrary.
+*<u>Clarification</u>: the author of the text below is not completely out of his mind, despite evidence to the contrary.*
 
-Without further ado, the premises: we'll be trying to come up with a totally scientific method of making money ("...using this one weird trick discovered by a mad scientist..."), lots and lots of shiny money. I'll outline the revenue generating method, and we'll use Frink to perform back-of-the-proverbial-napkin calculations to see how profitable it is (where, in our case, the "napkin" includes a computer and an internet connection). There will be some code soon, bear with me.
+Without further ado, the premises: we'll be trying to come up with a totally scientific method of making money ("...using this one weird trick discovered by a mad scientist..."), lots and lots of shiny money. I'll outline the revenue-generating method, and we'll use Frink to perform back-of-the-proverbial-napkin calculations to see how profitable it is (where, in our case, the "napkin" includes a computer and an internet connection). There will be some code soon, bear with me.
 
-It's common practice to make money from currency exchange, which can be thought of as taking advantage of geography to make money. Looking at it from a slightly different angle, we are using some form of spatial relationships to produce money. Since in physics there isn't much difference between space and time, why can't we use temporal relationships to produce money? "Ah", you might say, "he must mean stock trading". But no, that's too well-trodden a path to take, and it's not that interesting anyways. What I propose, is to use time travel, specifically time travel to the past, to generate money. A naive approach might include using current stock market information to make money in the past, but I don't consider it to be a viable approach, since if you're too successful you're likely to get caught and be sent to jail for insider trading or something; and that's not cool at all. Another method  would be to go to the past with a bunch of current dollars, and use the dollars increased buying ability in the past to import some goods into the future. But using money from the future might raise suspicion as well. So we'll use a more subtle approach.
+It's common practice to make money from currency exchange, which can be thought of as taking advantage of geography to make money. Looking at it from a slightly different angle, we are using some form of spatial relationships to generate profit. Since in physics there isn't much difference between space and time, why can't we use temporal relationships to earn money? "Ah", you might say, "he must mean stock trading". But no, that's too well-trodden a path to take, and it's not that interesting anyways. What I propose is to use time travel, specifically, time travel to the past, to generate profit. A naive approach might include using current stock market information to make money in the past, but I don't consider it to be a viable approach, since if you're too successful you're likely to get caught and be sent to jail for insider trading or something; and that's not cool at all. Another method would be to go to the past with a bunch of current dollars, and use the dollars' increased buying ability in the past to import some goods into the future. But using money from the future might raise suspicion as well. So we'll use a more subtle approach.
 
 The method relies on the fact that prices of various goods vary differently over time. As a reference for historical prices, we'll use this table (adapted from [here](http://www.infoplease.com/ipa/A0873707.html), all prices are given in dollars):
 
@@ -60,12 +60,12 @@ potatoes1920 = 0.630
 // but that'll do for now
 ```
 
-You might note, that these are just plain numbers; given how Frink is all about the physical units, we should probably give these numbers some concrete units. We could use the units actually provided in the table, but as someone once said:
+You might note that these are just plain numbers; given how Frink is all about the physical units, we should probably give these numbers some concrete units. We could use the units actually provided in the table, but as someone once said:
 > If God had wanted us to use the metric system, he would have given us 10 fingers and 10 toes
 
 (Though the distinguished scientist Frink, who lent his name to the Frink language, actually has 8 fingers, not sure what that implies...)
 
-Luckily, unit conversion is deeply ingrained into Frink. Let's start with bread, the units implied by the table are dollar per lbs, writing this down in the interpreter gives us:
+Luckily, unit conversion is deeply ingrained into Frink. Let's start with bread - the units implied by the table are dollar per lbs, writing this down in the interpreter gives us:
 ```
 dollar / lbs
 // 100000000/45359237 (approx. 2.2046226218487758) kg^-1 dollar (price_per_mass)
@@ -100,7 +100,7 @@ moneyMade = moneyFromBread - moneyInvested
 // 426.4506975915305898 dollar (currency)
 ```
 
-Ha, it works! We've just made ourselves about 430 dollars, and all it took is to buy a mere tonne of potatoes. Well almost, I'm ignoring the fact that we actually don't have a time machine. Speaking of which, though I've little experience with actual time travel, I would imagine that, just like in space travel, in a real time machine (and not those made up ones you see in the movies) the allowed weight and volume on a mission would be seriously constrained.
+Ha, it works! We've just made ourselves about 430 dollars, and all it took is to buy a mere tonne of potatoes. Well almost, I'm ignoring the fact that we actually don't have a time machine. Speaking of which, though I've little experience with actual time travel, I would imagine that, just like in space travel, in a real time machine (and not those made-up ones you see in the movies) the allowed weight and volume on a mission would be seriously constrained.
 
 We know how much weight we'll be carrying, but how much volume would that make? Simple enough, we just need the densities of bread and potatoes, which can be found, for example, [here](http://www.fao.org/docrep/017/ap815e/ap815e.pdf):
 ```
@@ -113,13 +113,13 @@ And so:
 548 kg / bread // 1.8896551724137931034 m^3 (volume)
 tonne / potato // 1.6949152542372881356 m^3 (volume)
 ```
-From which we can conclude that bread is the constraining element here. But these numbers are a bit meaningless, we need to compare them to something familiar. An average fridge is about 20 cubic feet, converting manually is simple enough (I'm using weird American units just to show that Frink doesn't scare easily):
+From which we can conclude that bread is the constraining element here. But these numbers are a bit meaningless; we need to compare them to something familiar. An average fridge is about 20 cubic feet, converting manually is simple enough (I'm using weird American units just to show that Frink doesn't scare easily):
 ```
 (548 kg / bread) / (20 cubic feet)
 // 3.3366271316165081822
 ```
 
-But we don't actually need to bother with manual unit conversion, since Frink has a nifty unit conversion opertor: `->`. For example, we can write:
+But we don't actually need to bother with manual unit conversion, since Frink has a nifty unit conversion operator: `->`. For example, we can write:
 ```
 1.67 meter -> feet 
 // 5.4790026246719160105
@@ -133,14 +133,14 @@ Adding quotes on the right-hand side gives a bit of nice formatting:
 
 Note that the result is a string value and not a number.
 
-What's even nicer, is that the right-hand side can contain an arbitrary numeric expression with compatible units, so we are not limited to just built-in units. Back to our example, we can write it as:
+What's even nicer is that the right-hand side can contain an arbitrary numeric expression with compatible units, so we are not limited to just built-in units. Back to our example, we can write it as:
 
 ```
 548 kg / bread -> 20 cubic feet
 // 3.3366271316165081822
 ```
 
-We can also define our own custom unit for fridge related measurements (which come up quite often, so definitely a worthwhile investment), and have:
+We can also define our own custom unit for fridge related measurements (which come up quite often, so definitely a worthwhile investment) and have:
 ```
 fridge = 20 cubic feet
 
@@ -148,7 +148,7 @@ fridge = 20 cubic feet
 // 3.3366271316165081822 fridge
 ```
 
-Making our 430 dollars would require us to carry 3 fridges full of bread, 90 years back from the past. Fair enough, nothing comes for free; making a bit of an effort for money builds character, or something.
+Making our 430 dollars would require us to carry 3 fridges full of bread, from 90 years back in the past. Fair enough, nothing comes for free; making a bit of an effort for money builds character, or something.
 
 Let's get more ambitious, we can arrange our retirement with a big score of 1 million dollars (and when I say "our", I mean "my", since it's my plan, I'm just thinking out loud here). Rearranging the equations from the previous excursion to the past, we have:
 ```
@@ -170,7 +170,7 @@ breadVolume -> "fridge"
 // 7821.6971854154656513 fridge
 ```
 
-At these volumes, fridges become a bit meaningless as well; I, personally, never seen so many fridges in one place (if you did, you can share this bizarre experience in the comments). A [space shuttle fuel tank](http://en.wikipedia.org/wiki/Space_Shuttle_external_tank) is about 2.6 million liters:
+At these volumes, fridges become a bit meaningless as well; I, personally, have never seen so many fridges in one place (if you did, you can share this bizarre experience in the comments). A [space shuttle fuel tank](http://en.wikipedia.org/wiki/Space_Shuttle_external_tank) is about 2.6 million liters:
 ```
 spaceFuelTank = 2.6 million liters
 
@@ -197,11 +197,11 @@ potato potatoCalories spaceFuelTank -> "fullFuelTank"
 // 0.23249054117647058823 fullFuelTank
 ```
 
-Not bad, of the two, bread seems to be the better alternative to rocket fuel; although we'll need more than two tanks of bread to compensate for its inefficiency (this is not, hmm, quite accurate, since in an actual fuel tank, not all volume is taken by liquid hydrogen, but, whatever). I won't take any responsibility for the consequences of actually trying to send a space mission on pure bread fuel; I am willing to to take credit if it works out, though.
+Not bad, of the two, bread seems to be the better alternative to rocket fuel; although we'll need more than two tanks of bread to compensate for its inefficiency (this is not, hmm, quite accurate, since in an actual fuel tank, not all volume is taken by liquid hydrogen, but, whatever). I won't take any responsibility for the consequences of actually trying to send a space mission on pure bread fuel; I am willing to take credit if it works out, though.
 
-Anyways, we got a bit sidetracked by a somewhat ridiculous idea, back to our more serious business plans. So making one big score and retiring doesn't seem to be in our cards. We'll probably have to devise some working schedule and move our goods in batches; time travel can really become a 9-to-5 job. But still, for now, it's a niche market, I'm sure that profit is guaranteed.
+Anyways, we got a bit sidetracked by a somewhat ridiculous idea - back to our more serious business plans. So making one big score and retiring doesn't seem to be in our cards. We'll probably have to devise some working schedule and move our goods in batches; time travel can really become a 9-to-5 job. But still, for now, it's a niche market, I'm sure that profit is guaranteed.
 
-Since it's a 9-to-5 job, we can try to figure out what our daily commute would be like. Judging from various movies, it seems that time travel is nearly instantaneous, but that's ridiculous, one's daily commute can't be that fast (I'm sure there's a law of physics that governs that). I propose a more reasonable rate of half an hour per one year traveled into the past. So traveling ninety years back takes:
+Since it's a 9-to-5 job, we can try to figure out what our daily commute would be like. Judging by various movies, it seems that time travel is nearly instantaneous, but that's ridiculous, one's daily commute can't be that fast (I'm sure there's a law of physics that governs that). I propose a more reasonable rate of half an hour per one year traveled into the past. So traveling ninety years back takes:
 ```
 ninety years (half hour / year) -> "hours"
 // 45.0 hours
@@ -219,13 +219,13 @@ startVelocity = c second / second
 targetVelocity = -c year / (half hour)
 ```
 
-We can plug our "velocities" into the formula for kinetic energy (`m/2 v^2`) and take the difference for our energy consumption. Assuming that the payload is a tonne of potatoes we have:
+We can plug our "velocities" into the formula for kinetic energy (`m/2 v^2`) and take the difference for our energy consumption. Assuming that the payload is a tonne of potatoes, we have:
 ```
 timeTravelEnergy = tonne/2 (targetVelocity^2 - startVelocity^2)
 // 1.3811974908674380205e+28 m^2 s^-2 kg (energy)
 ```
 
-Which is the energy we need to invest to accelerate back in time. We could similarly ballpark the return trip, but that `e+28` in our result looks really suspicious. Let's try to see what it means:
+Which is the energy we need to invest to accelerate back in time. We could similarly ballpark the return trip, but that `e+28` in the result looks really suspicious. Let's try to see what it means:
 ```
 // the atomic bomb dropped on Hiroshima
 littleBoy = 15 kilotons TNT
