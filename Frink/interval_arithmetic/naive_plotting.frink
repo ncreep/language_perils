@@ -14,10 +14,10 @@ naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
 
   multifor [x, y] = [xMin to xMax step xStep, yMin to yMax step yStep]
   {
-      eps = 10^-1
+      tolerance = 0.05
 
       res = abs[lhs[x, y] - rhs[x, y]]
-      if res < eps
+      if res < tolerance
       {
         g.fillRectSize[x, -y, xStep, -yStep]
         window.repaint[]
