@@ -1,0 +1,33 @@
+// A collection of various bumpy functions.
+ 
+/* A Gaussian function in one dimension */
+guassian[a, x] := exp[-x^2 / a^2]
+
+/* A 2d Guassian centered at (x0, y0) */
+guassian2d[a, x, x0, y, y0] := guassian[a, x - x0] guassian[a, y - y0]
+
+/* A shifted and inverted 2d Gaussian with a number of peaks. 
+ * `peaks` is a list of pairs designating the positions of the peaks. 
+ */
+gaussians[a, x, y, peaks] :=
+{
+  res = 2 // the shift of the gaussian
+  for [x0, y0] = peaks
+  {
+     res = res - guassian2d[a, x, x0, y, y0]
+  }
+
+  return res
+}
+
+/* A 2d surface with bumps at integer locations. */
+bumps[x, y] := exp[cos[2 pi x]] exp[cos[2 pi y]] / exp[2]
+
+/* A list of coordinates spelling the word 'magic'.
+ * (This could've been a constant, but there are no global variables in Frink, and defining a class for this purpose seems like overkill.)
+ */
+peaks[] := [[1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [2, 4], [3, 3], [4, 4], [5, 1], [5, 2], [5, 3], [5, 4], [5, 5], 
+          [7, 1], [7, 2], [7, 3], [7, 4], [7, 5], [8, 3], [8, 5], [9, 3], [9, 5], [10, 1], [10, 2], [10, 3], [10, 4], [10, 5], 
+          [12, 1], [12, 2], [12, 3], [12, 4], [12, 5], [13, 1], [13, 5], [14, 1], [14, 3], [14, 5], [15, 1], [15, 3], [15, 5], [16, 1], [16, 2], [16, 3], [16, 5], 
+          [18, 1], [18, 2], [18, 3], [18, 4], [18, 5],
+          [20, 1], [20, 2], [20, 3], [20, 4], [20, 5], [21, 1], [21, 5], [22, 1], [22, 5]] 

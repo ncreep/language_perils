@@ -1,0 +1,29 @@
+/*
+ * Plots the equation `lhs = rhs` in the specified region and resolution.
+ * Using interval arithemtic.
+ */
+intervalPlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
+{
+  g = new graphics
+  g.drawRectSides[xMin, -yMin, xMax, -yMax]
+  
+  window = g.show[]
+  
+  xStep = (xMax - xMin) / xSteps
+  yStep = (yMax - yMin) / ySteps
+
+  multifor [xx, yy] = [xMin to xMax step xStep, yMin to yMax step yStep]
+  {
+      x = new interval[xx, xx + xStep]
+      y = new interval[yy, yy + yStep]
+      
+      if lhs[x, y] PEQ rhs[x, y] // doing interval comparison
+      {
+        g.fillRectSize[xx, -yy, xStep, -yStep]
+        window.repaint[]
+      }
+  }
+  
+  // g.show[]
+  // g.write["interval.png", 500, 500] 
+}

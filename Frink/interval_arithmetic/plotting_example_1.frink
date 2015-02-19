@@ -1,0 +1,22 @@
+use naive_plotting.frink
+use interval_plotting.frink
+
+lhs = { |x, y| x^2 + y^2 }
+rhs = { |x, y| 81 sin[x]^2 }
+
+xMin = -10
+xMax = 10
+
+yMin = -10
+yMax = 10
+
+xSteps = 200 // 2000
+ySteps = 50 // 500
+
+naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps]
+
+//intervalPlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps]
+
+
+
+

@@ -1,0 +1,30 @@
+/*
+ * Plots the equation `lhs = rhs` in the specified region and resolution.
+ * Using the most naive possible technique.
+ */
+naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
+{
+  g = new graphics
+  g.drawRectSides[xMin, -yMin, xMax, -yMax]
+  
+  window = g.show[]
+  
+  xStep = (xMax - xMin) / xSteps
+  yStep = (yMax - yMin) / ySteps
+
+  multifor [x, y] = [xMin to xMax step xStep, yMin to yMax step yStep]
+  {
+      eps = 10^-1
+
+      res = abs[lhs[x, y] - rhs[x, y]]
+      if res < eps
+      {
+        g.fillRectSize[x, -y, xStep, -yStep]
+        window.repaint[]
+        // println["$x,$y"]
+      }
+  }
+  
+  // g.show[]
+  // g.write["naive.png", 500, 500] 
+}
