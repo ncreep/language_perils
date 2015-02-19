@@ -3,7 +3,7 @@ use interval_plotting.frink
 use bumps.frink
 
 lhs = { |x, y| bumps[x, y] }
-rhs = { |x, y| gaussians[0.1, x, y, peaks[]] }
+rhs = { |x, y| 2 - gaussians[0.01, x, y, peaks[]] }
 
 xMin = 0
 xMax = 23
@@ -11,10 +11,9 @@ xMax = 23
 yMin = 0
 yMax = 6
 
-xSteps = 100 // 1000
-ySteps = 50 // 500
+xSteps = 50 // 1000 // 100 101 102
+ySteps = 50 // 500 // 50 51 52
 
-naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps]
+// naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps]
 intervalPlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps]
-
 

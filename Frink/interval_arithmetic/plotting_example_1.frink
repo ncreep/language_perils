@@ -10,8 +10,8 @@ xMax = 10
 yMin = -10
 yMax = 10
 
-xSteps = 200 // 2000
-ySteps = 50 // 500
+xSteps = 800 // 500
+ySteps = 800 // 500
 
 naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps]
 
