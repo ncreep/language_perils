@@ -16,11 +16,9 @@ intervalPlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
       y = new interval[yy, yy + yStep]
       
       if lhs[x, y] PEQ rhs[x, y] // doing interval comparison
-      {
         g.fillRectSize[xx, -yy, xStep, -yStep]
-      }
   }
   
   g.show[]
-  // g.write["interval.png", 500, 500] 
+  // g.write["interval.png", 300, 300] 
 }

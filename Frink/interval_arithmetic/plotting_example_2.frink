@@ -11,8 +11,8 @@ xMax = 23
 yMin = 0
 yMax = 6
 
-xSteps = 50 // 1000 // 100 101 102
-ySteps = 50 // 500 // 50 51 52
+xSteps = 50
+ySteps = 50
 
 naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps]
 intervalPlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps]

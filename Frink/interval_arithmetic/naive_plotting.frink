@@ -16,11 +16,9 @@ naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
 
       res = abs[lhs[x, y] - rhs[x, y]]
       if res < tolerance
-      {
         g.fillRectSize[x, -y, xStep, -yStep]
-      }
   }
   
-   g.show[]
-  // g.write["naive.png", 500, 500] 
+  g.show[]
+  // g.write["naive.png", 500, 130] 
 }
