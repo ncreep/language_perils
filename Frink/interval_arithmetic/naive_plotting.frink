@@ -5,9 +5,7 @@
 naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
 {
   g = new graphics
-  g.drawRectSides[xMin, -yMin, xMax, -yMax]
-  
-  window = g.show[]
+  g.drawRectSides[xMin, -yMin, xMax, -yMax] // a frame for the plot
   
   xStep = (xMax - xMin) / xSteps
   yStep = (yMax - yMin) / ySteps
@@ -20,11 +18,9 @@ naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
       if res < tolerance
       {
         g.fillRectSize[x, -y, xStep, -yStep]
-        window.repaint[]
-        // println["$x,$y"]
       }
   }
   
-  // g.show[]
+   g.show[]
   // g.write["naive.png", 500, 500] 
 }

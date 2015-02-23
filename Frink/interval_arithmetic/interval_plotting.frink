@@ -5,9 +5,7 @@
 intervalPlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
 {
   g = new graphics
-  g.drawRectSides[xMin, -yMin, xMax, -yMax]
-  
-  window = g.show[]
+  g.drawRectSides[xMin, -yMin, xMax, -yMax] // a frame for the plot
   
   xStep = (xMax - xMin) / xSteps
   yStep = (yMax - yMin) / ySteps
@@ -20,10 +18,9 @@ intervalPlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
       if lhs[x, y] PEQ rhs[x, y] // doing interval comparison
       {
         g.fillRectSize[xx, -yy, xStep, -yStep]
-        window.repaint[]
       }
   }
   
-  // g.show[]
+  g.show[]
   // g.write["interval.png", 500, 500] 
 }
