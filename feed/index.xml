@@ -4,7 +4,7 @@
   <title><![CDATA[Language Perils]]></title>
   <link href="http://ncreep.github.io/language_perils/feed" rel="self"/>
   <link href="http://ncreep.github.io/language_perils/"/>
-  <updated>2015-01-14T23:05:51+02:00</updated>
+  <updated>2015-02-24T20:58:05+02:00</updated>
   <id>http://ncreep.github.io/language_perils/</id>
   <author>
     <name><![CDATA[Daniel Beskin]]></name>
@@ -12,6 +12,482 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Frink's Interval Arithmetic for the Masses]]></title>
+    <link href="http://ncreep.github.io/language_perils/blog/2015-02-19-frinks-interval-arithmetic-for-the-masses.html"/>
+    <updated>2015-02-19T19:25:33+02:00</updated>
+    <id>http://ncreep.github.io/language_perils/blog/frinks-interval-arithmetic-for-the-masses</id>
+    <content type="html"><![CDATA[<p>In the <a href="http://ncreep.github.io/language_perils/blog/2015-01-08-hello-frink.html">previous post</a> about Frink, we explored how smoothly Frink handles units of measure. In this post, we will focus on another deeply integrated feature of Frink&rsquo;s: interval arithmetic. On Frink&rsquo;s <a href="https://futureboy.us/frinkdocs/">homepage</a> this feature is described as magical. The aim of this post is to try and make sense of this statement. We will now give a quick rundown of interval arithmetic and then proceed to concrete examples. For a more detailed review of the subject, you can refer to <a href="http://en.wikipedia.org/wiki/Interval_arithmetic">Wikipedia</a>, or for a Frink-specific treatment, to the <a href="https://futureboy.us/frinkdocs/#IntervalArithmetic">interval arithmetic section</a> in Frink&rsquo;s documentation. On with it.</p>
+
+<!-- more -->
+
+
+<h2>Interval arithmetic 101</h2>
+
+<p>In interval arithmetic, instead of using numbers, we use intervals. Specifically, we say that <code>[3, 5]</code> represents the set of numbers between <code>3</code> and <code>5</code>. Given some intervals, we can define the basic arithmetic operations on them:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[a, b] + [c, d] = [a + c, b + d]
+</span><span class='line'>[a, b] - [c, d] = [a - d, b - c]
+</span><span class='line'>[a, b] * [c, d] = [min(ac, ad, bc, bd), max(ac, ad, bc, bd)]
+</span><span class='line'>[a, b] / [c, d] = [min(a/c, a/d, b/c, b/d), max(a/c, a/d, b/c, b/d)]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Which should make intuitive sense if you squint hard enough. With (quite) a bit more thought, it is possible to define interval operations for more complicated functions, e.g. trigonometric functions. And that&rsquo;s exactly what Frink does; most of its mathematical functions transparently support (real) intervals, so one can write:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>x = new interval[-1, 4]
+</span><span class='line'>y = new interval[6, 9]
+</span><span class='line'>
+</span><span class='line'>x + y  // =&gt; [5, 13]
+</span><span class='line'>x - y  // =&gt; [-10, -2]
+</span><span class='line'>x * y  // =&gt; [-9, 36]
+</span><span class='line'>x / y  // =&gt; [-1/6 (approx. -0.16666666666666667), 2/3 (approx. 0.66666666666666667)]
+</span><span class='line'>
+</span><span class='line'>x^2    // =&gt; [0, 16]
+</span><span class='line'>sin[x] // =&gt; [-0.8414709848079, 1]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(Note that Frink uses square brackets for function application/definition.)</p>
+
+<p>Although the interval definition syntax is a bit verbose and likely to change later on, the usage is indeed transparent. That is, code written for regular values (like the code above) works with intervals without any modification. Also, as can be seen in the <code>x^2</code> and <code>sin</code> examples, applying a function to an interval is not as simple as applying the function to the interval&rsquo;s boundaries, but rather involves an actual analysis of the function&rsquo;s behavior on the given interval.</p>
+
+<p>And that&rsquo;s all we&rsquo;ll need for the purposes of this post. With this rudimentary knowledge of interval arithmetic, we are now ready to try and flesh out the claim that interval arithmetic is magical.</p>
+
+<h2>Interval hat-trick</h2>
+
+<p>Suppose I want to prepare a classic hat-trick: pull a rabbit out of a top hat. For this, I would obviously need both a top hat and a rabbit. The question is, how do I make sure that the hat fits the rabbit? I can&rsquo;t just order any hat, it has to be large enough to contain the rabbit.</p>
+
+<p><img class="right" src="http://ncreep.github.io/language_perils/images/frink/rabbit_measure.png" width="256" height="392"></p>
+
+<p>Since I know literally nothing about rabbits and their sizes, I will use the picture on the right, depicting a fairly typical rabbit, as a reference.</p>
+
+<p>From this picture, we need to extract an estimate of the rabbit&rsquo;s size. Luckily, the rabbit holds, as they usually do, a pocket watch, and using the handy table from <a href="http://www.kenrockwell.com/watches/pocket-watch-sizes.htm">this</a> site we have an estimate of the diameter of a typical pocket watch:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>pocketWatch = new interval[1.0, 1.9] inch 
+</span><span class='line'>// [0.0254, 0.04826] m (length)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, intervals are integrated with units; we could also have written <code>new interval[1.0 inch, 1.9 inch]</code>, but this way is more concise.</p>
+
+<p>Knowing the diameter of a pocket watch, we can draw a little &ldquo;pocket watch scale&rdquo; for the rabbit (on the same picture on the right). We are assuming that both the legs and the ears are foldable, so the measurement excludes this area. Looking at the picture, we can see that the rabbit is about 10.5 watches tall, and about 5 watches wide. Since I don&rsquo;t really know how squishy a real rabbit is, let&rsquo;s give both dimensions a bit of an error margin either way, so:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>heightInWatches = new interval[10.5 - 1, 10.5 + 1]
+</span><span class='line'>widthInWatches = new interval[5 - 0.5, 5 + 0.5]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Combining with the size of a watch we have:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rabbitHeight = heightInWatches pocketWatch
+</span><span class='line'>// [0.2413, 0.55499] m (length)
+</span><span class='line'>
+</span><span class='line'>rabbitWidth = widthInWatches pocketWatch
+</span><span class='line'>// [0.1143, 0.26543] m (length)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>According to <a href="http://en.wikipedia.org/wiki/Rabbit">Wikipedia</a>, a rabbit&rsquo;s weight is:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rabbitWeight = new interval[0.4, 2] kg</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Which means, assuming that a rabbit forms a perfect cylinder, that we can calculate the rabbit&rsquo;s mass density:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rabbitVolume = pi (rabbitWidth / 2)^2 * rabbitHeight
+</span><span class='line'>rabbitDensity = rabbitWeight / rabbitVolume
+</span><span class='line'>
+</span><span class='line'>rabbitDensity -&gt; "water"
+</span><span class='line'>// [0.013025216116065158404, 0.8077748579515481546] water</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So rabbits float on water; definitely a useful thing to know next time you go out with your rabbit to the beach. (Also, by nothing but a total coincidence, the height that we estimated fits pretty well with the data given in Wikipedia.)</p>
+
+<p>Under the same cylindrical rabbit assumption, the width of the rabbit can be taken as the width of the top hat we&rsquo;ll be using. From which we gather that a magician&rsquo;s head circumference should be:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>magicianHead = pi rabbitWidth
+</span><span class='line'>
+</span><span class='line'>magicianHead -&gt; "cm"
+</span><span class='line'>// [35.90840403053133671, 83.387293804233881917] cm</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Which according to the table <a href="http://www.ubs.iastate.edu/hat_sizing_chart.html">here</a> makes the potential magician either a giant or an extraordinarily small infant.</p>
+
+<p>Having done this exhaustive research, we are now ready to order a hat. Just need to figure out where one buys a top hat these days&hellip;</p>
+
+<p>Okay, so what do we have here? Essentially, we just did a calculation with built-in error propagation; which in itself is quite nice (and probably useful), but as every poor-soul-of-an-undergraduate-physics-student-stuck-in-a-lab knows, error analysis is not that difficult, even without the support of special programming tools (although I&rsquo;m sure that said student would show nothing but great appreciation for such a tool). So apart from the magical theme, we are yet to achieve any real magic here.</p>
+
+<p>But we won&rsquo;t be giving up just yet.</p>
+
+<h2>Interval plotting</h2>
+
+<p>One good use of interval arithmetic techniques is for plotting. An illustration of this can be found on a <a href="http://futureboy.us/fsp/simplegraph.fsp">demonstration page</a>, which generates ASCII plots for equations. As can be seen in the Frink <a href="http://futureboy.us/fsp/highlight.fsp?f=simplegraph.fsp">source</a> for this page, the code that achieves this uses interval arithmetic and is quite compact.</p>
+
+<p>Let&rsquo;s try to figure out how it works. Before we do that, we need something to compare to the interval arithmetic approach. Since Frink doesn&rsquo;t (yet) have any built-in plotting facilities, we will roll our own simplistic plotting solution. For this purpose, we can leverage Frink&rsquo;s graphics support (which is much more interesting than what I&rsquo;ll be showing here, see the <a href="https://futureboy.us/frinkdocs/#Graphics">documentation</a> for the full story).</p>
+
+<p>Without further ado, the naive plotting solution:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
+</span><span class='line'>{
+</span><span class='line'>  g = new graphics
+</span><span class='line'>  g.drawRectSides[xMin, -yMin, xMax, -yMax] // a frame for the plot
+</span><span class='line'>  
+</span><span class='line'>  xStep = (xMax - xMin) / xSteps
+</span><span class='line'>  yStep = (yMax - yMin) / ySteps
+</span><span class='line'>
+</span><span class='line'>  multifor [x, y] = [xMin to xMax step xStep, yMin to yMax step yStep]
+</span><span class='line'>  {
+</span><span class='line'>      tolerance = 0.05
+</span><span class='line'>
+</span><span class='line'>      res = abs[lhs[x, y] - rhs[x, y]]
+</span><span class='line'>      if res &lt; tolerance
+</span><span class='line'>        g.fillRectSize[x, -y, xStep, -yStep]
+</span><span class='line'>  }
+</span><span class='line'>  
+</span><span class='line'>  g.show[]
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(the full source code for this and further snippets can be found in the <a href="https://github.com/ncreep/language_perils/tree/master/Frink/interval_arithmetic">repository</a>)</p>
+
+<p>The code should be fairly readable even without much familiarity with Frink. We are defining a function (as denoted by <code>:=</code>). The function takes two function arguments, <code>lhs</code> and <code>rhs</code>, each representing a side of the equation we are about to plot, and a bunch of numbers for the <code>x</code>/<code>y</code> limits and steps. Note that the curly braces must be on a separate line; which, from my point of view, is the only truly evil feature of Frink I&rsquo;ve seen so far.</p>
+
+<p>On line 3, we are initializing a new graphics object; this is the container for our plot. As a first step, on line 4, we are drawing a frame for the plot (otherwise, Frink might clip empty regions around it). Relative to standard mathematical plotting, the graphics object&rsquo;s <code>y</code> axis is inverted, hence the minus signs on all <code>y</code> values.</p>
+
+<p>Next, we need to step through the range of the plot; instead of using two nested loops, we are using a <code>multifor</code>, which combines multiple nested loops into a single construct. At every step, we are applying the <code>lhs</code> and <code>rhs</code> functions to the current <code>x</code>/<code>y</code> values and see whether they are close enough. If they are within the tolerance value, on line 15 we are drawing a filled rectangle to mark that position.</p>
+
+<p>After exiting the loop, on line 18, we invoke the <code>show</code> method on the graphics object, which shows the result on the screen.</p>
+
+<p>This is probably the crappiest plotting solution one could possibly write. The tolerance is abysmal, but since we are using a constant step, a smaller tolerance would take too many steps to achieve anything. As it is, even moderately spiky functions should throw the whole thing off. Nonetheless, this can actually plot something, and it&rsquo;s good enough for illustration purposes.</p>
+
+<p>Let&rsquo;s put it to the test. The preloaded example on the <a href="http://futureboy.us/fsp/simplegraph.fsp">demonstration page</a> plots the equation</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>x^2 + y^2 = 81 sin[x]^2</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Which should result in a bunch of circles. Let&rsquo;s try to apply <code>naivePlot</code> to draw them. First, we&rsquo;ll define a pair of anonymous functions for the parts of the equation:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>lhs = { |x, y| x^2 + y^2 }
+</span><span class='line'>rhs = { |x, y| 81 sin[x]^2 }</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>{ |x, y| ... }</code> syntax defines an anonymous function with two arguments. After setting the bounds and number of steps, we can create the plot:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>xMin = -10
+</span><span class='line'>xMax = 10
+</span><span class='line'>
+</span><span class='line'>yMin = -10
+</span><span class='line'>yMax = 10
+</span><span class='line'>
+</span><span class='line'>xSteps = 300
+</span><span class='line'>ySteps = 300
+</span><span class='line'>
+</span><span class='line'>naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the result:
+<img class="center" src="http://ncreep.github.io/language_perils/images/frink/naive_e1_300.png"></p>
+
+<p>Which is reminiscent of the circles pattern we should be getting, but not quite there. We can push up the number of steps:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, 800, 800]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To obtain:
+<img class="center" src="http://ncreep.github.io/language_perils/images/frink/naive_e1_800.png"></p>
+
+<p>Since the step size is getting smaller, the points we are drawing are tiny. But the circles are definitely visible.</p>
+
+<p>Now we can proceed to the interval arithmetic variant. Here&rsquo;s the code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>intervalPlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
+</span><span class='line'>{
+</span><span class='line'>  g = new graphics
+</span><span class='line'>  g.drawRectSides[xMin, -yMin, xMax, -yMax] // a frame for the plot
+</span><span class='line'>  
+</span><span class='line'>  xStep = (xMax - xMin) / xSteps
+</span><span class='line'>  yStep = (yMax - yMin) / ySteps
+</span><span class='line'>
+</span><span class='line'>  multifor [xx, yy] = [xMin to xMax step xStep, yMin to yMax step yStep]
+</span><span class='line'>  {
+</span><span class='line'>      x = new interval[xx, xx + xStep]
+</span><span class='line'>      y = new interval[yy, yy + yStep]
+</span><span class='line'>      
+</span><span class='line'>      if lhs[x, y] PEQ rhs[x, y] // doing interval comparison
+</span><span class='line'>        g.fillRectSize[xx, -yy, xStep, -yStep]
+</span><span class='line'>  }
+</span><span class='line'>  
+</span><span class='line'>  g.show[]
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The structure of <code>intervalPlot</code> is quite similar to <code>naivePlot</code>. The key difference is that instead of applying <code>lhs</code> and <code>rhs</code> to numbers, we are applying them to intervals. Specifically, at each iteration, we are creating intervals corresponding to the numbers between the current <code>x</code>/<code>y</code> values and the next (lines 11-12). As mentioned above, Frink&rsquo;s support for intervals is transparent, so we can apply <code>lhs</code> and <code>rhs</code> to the intervals in the very same way as we did in <code>naivePlot</code>. But now, instead of using a tolerance value to compare the results, we are using the operator <code>PEQ</code>, which stands for &ldquo;Possibly EQuals&rdquo;, i.e. it tests whether the compared intervals have some overlap. This is one of a number interval-specific operators defined in Frink (for the full list see the <a href="https://futureboy.us/frinkdocs/#IntervalComparisonOperators">documentation</a>).</p>
+
+<p>In the context of plotting, <code>PEQ</code> is exactly what we need; given that interval arithmetic produces the right bounds, there is no way for our code to miss solutions to the equation. To make this point more clear, we can consider two single-variable functions, <code>f</code> and <code>g</code>. In the previous section, it was natural to view intervals as values with an uncertainty or a measurement error. But there is another way to look at them: an interval simultaneously represents all values in its range. With this interpretation, the expression <code>f([3, 5])</code> is equivalent to sampling the function on the whole range of <code>[3, 5]</code>. That is, the interval <code>f([3, 5])</code> contains all values that <code>f</code> can take on the range <code>[3, 5]</code>. So the assertion that <code>f([3, 5]) PEQ g([3, 5])</code> means that somewhere in the range <code>[3, 5]</code> the functions <code>f</code> and <code>g</code> must be equal. Hence this interval must be marked on the plot. In this way, we can achieve (paraphrasing the comment <a href="http://mrhonner.com/archives/11643#comment-3980">here</a>) a &ldquo;step-perfect&rdquo; plot &ndash; if a solution to the equation exists within a step, <code>PEQ</code> cannot miss it (though false positives should be possible if the resulting intervals are not tight enough; but that&rsquo;s beyond the scope of this post). Since in <code>intervalPlot</code> we are covering the whole plot range with intervals, we should see all solutions to the equation within the range.</p>
+
+<p>Okay, but that&rsquo;s all just theory, what we really need is proof, and what can better serve as a proof than a picture. For the code</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>intervalPlot[lhs, rhs, xMin, xMax, yMin, yMax, 300, 300]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>we get:</p>
+
+<p><img class="center" src="http://ncreep.github.io/language_perils/images/frink/interval_e1_300.png"></p>
+
+<p>Which is a bit crude, since we are not making that many steps. We should remember though, that for the equivalent step size in the naive approach, we got almost nothing at all. Here, as promised, we are not missing any solutions in the whole range. It is possible to refine the plot by increasing the step size:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>intervalPlot[lhs, rhs, xMin, xMax, yMin, yMax, 800, 800]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and yield:</p>
+
+<p><img class="center" src="http://ncreep.github.io/language_perils/images/frink/interval_e1_800.png"></p>
+
+<p>Which is quite amazing, since this solution is as simple to implement as the naive solution, but it doesn&rsquo;t require us to muck about with tolerance values and step sizes, the burden of heavy lifting is on the implementation of interval arithmetic.</p>
+
+<p>All this power at my fingertips&hellip; Let&rsquo;s try to plot something more ambitious. For this, we&rsquo;ll define the following functions:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/* A Gaussian function in one dimension */
+</span><span class='line'>guassian[a, x] := exp[-x^2 / a^2]
+</span><span class='line'>
+</span><span class='line'>/* A 2d Guassian centered at (x0, y0) */
+</span><span class='line'>guassian2d[a, x, x0, y, y0] := guassian[a, x - x0] guassian[a, y - y0]
+</span><span class='line'>
+</span><span class='line'>/* A sum of 2d Gaussians with peaks at different locations. 
+</span><span class='line'> * `peaks` is a list of pairs designating the positions of the peaks. 
+</span><span class='line'> */
+</span><span class='line'>gaussians[a, x, y, peaks] :=
+</span><span class='line'>{
+</span><span class='line'>  res = 0
+</span><span class='line'>  for [x0, y0] = peaks
+</span><span class='line'>  {
+</span><span class='line'>     res = res + guassian2d[a, x, x0, y, y0]
+</span><span class='line'>  }
+</span><span class='line'>
+</span><span class='line'>  res
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>/* A 2d surface with bumps at integer locations. */
+</span><span class='line'>bumps[x, y] := cos[2 pi x] cos[2 pi y]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Which is just a bunch of different bumpy functions. The sides of the equation that we will be plotting now are:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>lhs = { |x, y| bumps[x, y] }
+</span><span class='line'>rhs = { |x, y| 2 - gaussians[0.01, x, y, peaks[]] }</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Where <code>peaks[]</code> is a list of pairs:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>peaks[] := [[1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [2, 4], [3, 3], [4, 4], [5, 1], [5, 2], [5, 3], [5, 4], [5, 5], 
+</span><span class='line'>            [7, 1], [7, 2], [7, 3], [7, 4], [7, 5], [8, 3], [8, 5], [9, 3], [9, 5], [10, 1], [10, 2], [10, 3], [10, 4], [10, 5], 
+</span><span class='line'>            [12, 1], [12, 2], [12, 3], [12, 4], [12, 5], [13, 1], [13, 5], [14, 1], [14, 3], [14, 5], [15, 1], [15, 2], [15, 3], [15, 5], 
+</span><span class='line'>            [17, 1], [17, 2], [17, 3], [17, 4], [17, 5],
+</span><span class='line'>            [19, 1], [19, 2], [19, 3], [19, 4], [19, 5], [20, 1], [20, 5], [21, 1], [21, 5]]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The exact details of the various functions are not that important, what&rsquo;s important is that both <code>lhs</code> and <code>rhs</code> can be evaluated on intervals, and so can be plotted by <code>intervalPlot</code>. But first, let&rsquo;s see what <code>naivePlot</code> can make of it:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>xMin = 0
+</span><span class='line'>xMax = 23
+</span><span class='line'>
+</span><span class='line'>yMin = 0
+</span><span class='line'>yMax = 6
+</span><span class='line'>
+</span><span class='line'>xSteps = 50
+</span><span class='line'>ySteps = 50
+</span><span class='line'>
+</span><span class='line'>naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Since this function takes longer to evaluate, I won&rsquo;t bother with a larger step. And the result:</p>
+
+<p><img class="center" src="http://ncreep.github.io/language_perils/images/frink/naive_e2_50.png"></p>
+
+<p>One would&rsquo;ve thought that with all the fuss defining the functions above, we&rsquo;d have something more interesting as a result, oh well&hellip;</p>
+
+<p>Let&rsquo;s try <code>intervalPlot</code> with the same step:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>intervalPlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps]</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img class="center" src="http://ncreep.github.io/language_perils/images/frink/interval_e2_50.png"></p>
+
+<p>Now that&rsquo;s magic!</p>
+
+<p>Okay, okay, I know, it&rsquo;s a bit gimmicky. Also, you might be thinking that defining some pathological function and then comparing the performance of the interval arithmetic solution to the joke of a plotting function that I came up with doesn&rsquo;t really prove anything. And you&rsquo;d be right, it is a somewhat inadequate comparison (though I would like to point out again how ridiculously simple <code>intervalPlot</code>&rsquo;s implementation is). If only I had something more solid to compare to.</p>
+
+<p>I&rsquo;m sure that most would agree that <a href="http://www.wolframalpha.com/">WolframAlpha</a> knows a thing or two about plotting. Let&rsquo;s see how it compares to <code>intervalPlot</code>. Though it would be a bit tedious to submit our complete functions to WolframAlpha, so we&rsquo;ll simplify a bit:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>lhs = { |x, y| bumps[x, y] }
+</span><span class='line'>rhs = { |x, y| 2 - guassian2d[0.01, x, 1, y, 1] }
+</span><span class='line'>
+</span><span class='line'>xMin = 0
+</span><span class='line'>xMax = 2
+</span><span class='line'>
+</span><span class='line'>yMin = 0
+</span><span class='line'>yMax = 2
+</span><span class='line'>
+</span><span class='line'>xSteps = 50
+</span><span class='line'>ySteps = 50</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Which is essentially the same as before, except that on line 2 we&rsquo;re not using <code>peaks[]</code> anymore, but just a single peak. We can run</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>intervalPlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and get:</p>
+
+<p><img class="center" src="http://ncreep.github.io/language_perils/images/frink/interval_e3_50.png"></p>
+
+<p>As of writing, <a href="http://www.wolframalpha.com/input/?i=ContourPlot%5BCos%5B2+Pi+x%5D+Cos%5B2+Pi+y%5D+%3D%3D+2+-+Exp%5B-%28x+-+1%29^2%2F%280.01%29^2%5D+Exp%5B-%28y+-+1%29^2%2F%280.01%29^2%5D%2C+{x%2C+0%2C+2}%2C+{y%2C0%2C+2}%5D">running the equivalent expression</a> on WolframAlpha yields the following:</p>
+
+<p><img class="center" src="http://ncreep.github.io/language_perils/images/frink/wolfram_alpha_e3.png" width="320" height="320"></p>
+
+<p>Although I&rsquo;ve no idea how Mathematica (and by extension WolframAlpha) implements plotting for this sort of thing, I&rsquo;m sure that it&rsquo;s not anywhere nearly as simple as our toy interval arithmetic function.</p>
+
+<p>(Ironically, for the data above, <code>naivePlot</code> actually produces a plot with a point in the middle; but that&rsquo;s not really a meaningful result, but rather a coincidence, since even a minor tweak, e.g. <code>xSteps = 51</code>, makes the point disappear. <code>intervalPlot</code>, is, obviously, insensitive to such tweaks.)</p>
+
+<p>Having said all that, I&rsquo;m not actually knowledgeable enough to be actively recommending interval arithmetic plotting solutions as a drop-in replacements for anything else. As in any other non-trivial numerical problem, I&rsquo;m sure that this area has its own set of nuances, which were not apparent in the examples used in this post. Probably, the best approach to plotting is some combination of various techniques. But still, I find it quite intriguing that we managed to get so far with such a small investment.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Hello Frink]]></title>
