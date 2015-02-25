@@ -4,7 +4,7 @@
   <title><![CDATA[Language Perils]]></title>
   <link href="http://ncreep.github.io/language_perils/feed" rel="self"/>
   <link href="http://ncreep.github.io/language_perils/"/>
-  <updated>2015-02-24T20:58:05+02:00</updated>
+  <updated>2015-02-25T04:12:36+02:00</updated>
   <id>http://ncreep.github.io/language_perils/</id>
   <author>
     <name><![CDATA[Daniel Beskin]]></name>
@@ -183,11 +183,11 @@
 </span><span class='line'>  
 </span><span class='line'>  xStep = (xMax - xMin) / xSteps
 </span><span class='line'>  yStep = (yMax - yMin) / ySteps
+</span><span class='line'>  
+</span><span class='line'>  tolerance = 0.05
 </span><span class='line'>
 </span><span class='line'>  multifor [x, y] = [xMin to xMax step xStep, yMin to yMax step yStep]
 </span><span class='line'>  {
-</span><span class='line'>      tolerance = 0.05
-</span><span class='line'>
 </span><span class='line'>      res = abs[lhs[x, y] - rhs[x, y]]
 </span><span class='line'>      if res &lt; tolerance
 </span><span class='line'>        g.fillRectSize[x, -y, xStep, -yStep]
@@ -305,7 +305,7 @@
 
 <p>The structure of <code>intervalPlot</code> is quite similar to <code>naivePlot</code>. The key difference is that instead of applying <code>lhs</code> and <code>rhs</code> to numbers, we are applying them to intervals. Specifically, at each iteration, we are creating intervals corresponding to the numbers between the current <code>x</code>/<code>y</code> values and the next (lines 11-12). As mentioned above, Frink&rsquo;s support for intervals is transparent, so we can apply <code>lhs</code> and <code>rhs</code> to the intervals in the very same way as we did in <code>naivePlot</code>. But now, instead of using a tolerance value to compare the results, we are using the operator <code>PEQ</code>, which stands for &ldquo;Possibly EQuals&rdquo;, i.e. it tests whether the compared intervals have some overlap. This is one of a number interval-specific operators defined in Frink (for the full list see the <a href="https://futureboy.us/frinkdocs/#IntervalComparisonOperators">documentation</a>).</p>
 
-<p>In the context of plotting, <code>PEQ</code> is exactly what we need; given that interval arithmetic produces the right bounds, there is no way for our code to miss solutions to the equation. To make this point more clear, we can consider two single-variable functions, <code>f</code> and <code>g</code>. In the previous section, it was natural to view intervals as values with an uncertainty or a measurement error. But there is another way to look at them: an interval simultaneously represents all values in its range. With this interpretation, the expression <code>f([3, 5])</code> is equivalent to sampling the function on the whole range of <code>[3, 5]</code>. That is, the interval <code>f([3, 5])</code> contains all values that <code>f</code> can take on the range <code>[3, 5]</code>. So the assertion that <code>f([3, 5]) PEQ g([3, 5])</code> means that somewhere in the range <code>[3, 5]</code> the functions <code>f</code> and <code>g</code> must be equal. Hence this interval must be marked on the plot. In this way, we can achieve (paraphrasing the comment <a href="http://mrhonner.com/archives/11643#comment-3980">here</a>) a &ldquo;step-perfect&rdquo; plot &ndash; if a solution to the equation exists within a step, <code>PEQ</code> cannot miss it (though false positives should be possible if the resulting intervals are not tight enough; but that&rsquo;s beyond the scope of this post). Since in <code>intervalPlot</code> we are covering the whole plot range with intervals, we should see all solutions to the equation within the range.</p>
+<p>In the context of plotting, <code>PEQ</code> is exactly what we need; given that interval arithmetic produces the right bounds, there is no way for our code to miss solutions to the equation. To make this point more clear, we can consider two single-variable functions, <code>f</code> and <code>g</code> (which for simplicity we assume to be continuous). In the previous section, it was natural to view intervals as values with an uncertainty or a measurement error. But there is another way to look at them: an interval simultaneously represents all values in its range. With this interpretation, the expression <code>f([3, 5])</code> is equivalent to sampling the function on the whole range of <code>[3, 5]</code>. That is, the interval <code>f([3, 5])</code> contains all values that <code>f</code> can take on the range <code>[3, 5]</code>. So the assertion that <code>f([3, 5]) PEQ g([3, 5]) == false</code> means that nowhere in the interval <code>[3, 5]</code> the functions <code>f</code> and <code>g</code> can be equal. That is, <code>PEQ</code> guarantees us that there is no solution to the equation <code>f = g</code> in this interval. The converse statement, <code>f([3, 5]) PEQ g([3, 5]) == true</code>, is not as strong, it only tells us that <code>[3, 5]</code> may contain a solution to the equation, but it is not guaranteed (thanks to <a href="https://twitter.com/aeliasen">Alan Eliasen</a> for clarifying this point). In the code above we assume that the solution does indeed exist, and we mark it on the plot (which may yield false positives if the resulting intervals are not tight enough; but that&rsquo;s beyond the scope of this post). In this way, we can achieve (paraphrasing the comment <a href="http://mrhonner.com/archives/11643#comment-3980">here</a>) a &ldquo;step-perfect&rdquo; plot &ndash; if a solution to the equation exists within a step, <code>PEQ</code> cannot miss it (which contrasts probabilistic sampling methods, like <code>naivePlot</code>, that can miss possible solutions). Since in <code>intervalPlot</code> we are covering the whole plot range with intervals, we should see all solutions to the equation within the range.</p>
 
 <p>Okay, but that&rsquo;s all just theory, what we really need is proof, and what can better serve as a proof than a picture. For the code</p>
 
@@ -354,10 +354,10 @@
 <span class='line-number'>21</span>
 <span class='line-number'>22</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>/* A Gaussian function in one dimension */
-</span><span class='line'>guassian[a, x] := exp[-x^2 / a^2]
+</span><span class='line'>gaussian[a, x] := exp[-x^2 / a^2]
 </span><span class='line'>
-</span><span class='line'>/* A 2d Guassian centered at (x0, y0) */
-</span><span class='line'>guassian2d[a, x, x0, y, y0] := guassian[a, x - x0] guassian[a, y - y0]
+</span><span class='line'>/* A 2d Gaussian centered at (x0, y0) */
+</span><span class='line'>gaussian2d[a, x, x0, y, y0] := gaussian[a, x - x0] gaussian[a, y - y0]
 </span><span class='line'>
 </span><span class='line'>/* A sum of 2d Gaussians with peaks at different locations. 
 </span><span class='line'> * `peaks` is a list of pairs designating the positions of the peaks. 
@@ -367,10 +367,10 @@
 </span><span class='line'>  res = 0
 </span><span class='line'>  for [x0, y0] = peaks
 </span><span class='line'>  {
-</span><span class='line'>     res = res + guassian2d[a, x, x0, y, y0]
+</span><span class='line'>     res = res + gaussian2d[a, x, x0, y, y0]
 </span><span class='line'>  }
 </span><span class='line'>
-</span><span class='line'>  res
+</span><span class='line'>  return res
 </span><span class='line'>}
 </span><span class='line'>
 </span><span class='line'>/* A 2d surface with bumps at integer locations. */

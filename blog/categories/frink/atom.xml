@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Frink | Language Perils]]></title>
   <link href="http://ncreep.github.io/language_perils/blog/categories/frink/atom.xml" rel="self"/>
   <link href="http://ncreep.github.io/language_perils/"/>
-  <updated>2015-02-24T20:58:05+02:00</updated>
+  <updated>2015-02-25T04:12:36+02:00</updated>
   <id>http://ncreep.github.io/language_perils/</id>
   <author>
     <name><![CDATA[Daniel Beskin]]></name>
@@ -129,11 +129,11 @@ naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
   
   xStep = (xMax - xMin) / xSteps
   yStep = (yMax - yMin) / ySteps
+  
+  tolerance = 0.05
 
   multifor [x, y] = [xMin to xMax step xStep, yMin to yMax step yStep]
   {
-      tolerance = 0.05
-
       res = abs[lhs[x, y] - rhs[x, y]]
       if res < tolerance
         g.fillRectSize[x, -y, xStep, -yStep]
@@ -220,7 +220,7 @@ intervalPlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
 
 The structure of `intervalPlot` is quite similar to `naivePlot`. The key difference is that instead of applying `lhs` and `rhs` to numbers, we are applying them to intervals. Specifically, at each iteration, we are creating intervals corresponding to the numbers between the current `x`/`y` values and the next (lines 11-12). As mentioned above, Frink's support for intervals is transparent, so we can apply `lhs` and `rhs` to the intervals in the very same way as we did in `naivePlot`. But now, instead of using a tolerance value to compare the results, we are using the operator `PEQ`, which stands for "Possibly EQuals", i.e. it tests whether the compared intervals have some overlap. This is one of a number interval-specific operators defined in Frink (for the full list see the [documentation](https://futureboy.us/frinkdocs/#IntervalComparisonOperators)). 
 
-In the context of plotting, `PEQ` is exactly what we need; given that interval arithmetic produces the right bounds, there is no way for our code to miss solutions to the equation. To make this point more clear, we can consider two single-variable functions, `f` and `g`. In the previous section, it was natural to view intervals as values with an uncertainty or a measurement error. But there is another way to look at them: an interval simultaneously represents all values in its range. With this interpretation, the expression `f([3, 5])` is equivalent to sampling the function on the whole range of `[3, 5]`. That is, the interval `f([3, 5])` contains all values that `f` can take on the range `[3, 5]`. So the assertion that `f([3, 5]) PEQ g([3, 5])` means that somewhere in the range `[3, 5]` the functions `f` and `g` must be equal. Hence this interval must be marked on the plot. In this way, we can achieve (paraphrasing the comment [here](http://mrhonner.com/archives/11643#comment-3980)) a "step-perfect" plot - if a solution to the equation exists within a step, `PEQ` cannot miss it (though false positives should be possible if the resulting intervals are not tight enough; but that's beyond the scope of this post). Since in `intervalPlot` we are covering the whole plot range with intervals, we should see all solutions to the equation within the range.
+In the context of plotting, `PEQ` is exactly what we need; given that interval arithmetic produces the right bounds, there is no way for our code to miss solutions to the equation. To make this point more clear, we can consider two single-variable functions, `f` and `g` (which for simplicity we assume to be continuous). In the previous section, it was natural to view intervals as values with an uncertainty or a measurement error. But there is another way to look at them: an interval simultaneously represents all values in its range. With this interpretation, the expression `f([3, 5])` is equivalent to sampling the function on the whole range of `[3, 5]`. That is, the interval `f([3, 5])` contains all values that `f` can take on the range `[3, 5]`. So the assertion that `f([3, 5]) PEQ g([3, 5]) == false` means that nowhere in the interval `[3, 5]` the functions `f` and `g` can be equal. That is, `PEQ` guarantees us that there is no solution to the equation `f = g` in this interval. The converse statement, `f([3, 5]) PEQ g([3, 5]) == true`, is not as strong, it only tells us that `[3, 5]` may contain a solution to the equation, but it is not guaranteed (thanks to [Alan Eliasen](https://twitter.com/aeliasen) for clarifying this point). In the code above we assume that the solution does indeed exist, and we mark it on the plot (which may yield false positives if the resulting intervals are not tight enough; but that's beyond the scope of this post). In this way, we can achieve (paraphrasing the comment [here](http://mrhonner.com/archives/11643#comment-3980)) a "step-perfect" plot - if a solution to the equation exists within a step, `PEQ` cannot miss it (which contrasts probabilistic sampling methods, like `naivePlot`, that can miss possible solutions). Since in `intervalPlot` we are covering the whole plot range with intervals, we should see all solutions to the equation within the range.
 
 Okay, but that's all just theory, what we really need is proof, and what can better serve as a proof than a picture. For the code
 ```
@@ -244,10 +244,10 @@ All this power at my fingertips... Let's try to plot something more ambitious. F
 
 ```
 /* A Gaussian function in one dimension */
-guassian[a, x] := exp[-x^2 / a^2]
+gaussian[a, x] := exp[-x^2 / a^2]
 
-/* A 2d Guassian centered at (x0, y0) */
-guassian2d[a, x, x0, y, y0] := guassian[a, x - x0] guassian[a, y - y0]
+/* A 2d Gaussian centered at (x0, y0) */
+gaussian2d[a, x, x0, y, y0] := gaussian[a, x - x0] gaussian[a, y - y0]
 
 /* A sum of 2d Gaussians with peaks at different locations. 
  * `peaks` is a list of pairs designating the positions of the peaks. 
@@ -257,10 +257,10 @@ gaussians[a, x, y, peaks] :=
   res = 0
   for [x0, y0] = peaks
   {
-     res = res + guassian2d[a, x, x0, y, y0]
+     res = res + gaussian2d[a, x, x0, y, y0]
   }
 
-  res
+  return res
 }
 
 /* A 2d surface with bumps at integer locations. */
