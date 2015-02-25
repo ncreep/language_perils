@@ -145,7 +145,9 @@
 <p>Inspired by Lisp macros, I decided to implement a splicing scheme illustrated by this example:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>["two" "four" "five"] [[1 ~0 3] [~1 ~2] concat] splice-from-list # =&gt; [[1 "two" 3] ["four" "five"] concat]</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>["two" "four" "five"] [[1 ~0 3] [~1 ~2] concat] splice-from-list 
+</span><span class='line'># =&gt; [[1 "two" 3] ["four" "five"] concat]</span></code></pre></td></tr></table></div></figure>
 
 
 <p>The first list is the argument list and the second is the target program skeleton. Each <code>~X</code> symbol is treated as an index <code>X</code> in the argument list. Upon application of the <code>splice-from-list</code> function, each occurrence of the <code>~X</code> pattern is replaced by the corresponding item in the argument list.</p>
@@ -179,7 +181,9 @@
 <p>where <code>take-from-stack</code> takes a fixed number of items from the stack and places them in a list. Now we can write</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>"two" "four" "five" [[1 ~0 3] [~1 ~2] concat] 3 splice-from-stack # =&gt; [[1 "two" 3] ["four" "five"] concat]</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"two" "four" "five" [[1 ~0 3] [~1 ~2] concat] 3 splice-from-stack 
+</span><span class='line'># =&gt; [[1 "two" 3] ["four" "five"] concat]</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Note how the <code>"two" "four" "five"</code> items are on the stack and not in a list. In most cases, it may feel redundant to write the number of items to take from the stack, it is evident from the maximal value of <code>X</code> in the different <code>~X</code> patterns, so we define</p>
