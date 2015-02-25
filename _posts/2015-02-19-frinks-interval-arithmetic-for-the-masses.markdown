@@ -117,11 +117,11 @@ naivePlot[lhs, rhs, xMin, xMax, yMin, yMax, xSteps, ySteps] :=
   
   xStep = (xMax - xMin) / xSteps
   yStep = (yMax - yMin) / ySteps
+  
+  tolerance = 0.05
 
   multifor [x, y] = [xMin to xMax step xStep, yMin to yMax step yStep]
   {
-      tolerance = 0.05
-
       res = abs[lhs[x, y] - rhs[x, y]]
       if res < tolerance
         g.fillRectSize[x, -y, xStep, -yStep]
