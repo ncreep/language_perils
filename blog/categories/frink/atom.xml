@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Frink | Language Perils]]></title>
   <link href="http://ncreep.github.io/language_perils/blog/categories/frink/atom.xml" rel="self"/>
   <link href="http://ncreep.github.io/language_perils/"/>
-  <updated>2015-02-25T04:56:22+02:00</updated>
+  <updated>2015-02-25T14:07:28+02:00</updated>
   <id>http://ncreep.github.io/language_perils/</id>
   <author>
     <name><![CDATA[Daniel Beskin]]></name>
@@ -319,7 +319,7 @@ I'm sure that most would agree that [WolframAlpha](http://www.wolframalpha.com/)
 
 ```
 lhs = { |x, y| bumps[x, y] }
-rhs = { |x, y| 2 - guassian2d[0.01, x, 1, y, 1] }
+rhs = { |x, y| 2 - gaussian2d[0.01, x, 1, y, 1] }
 
 xMin = 0
 xMax = 2

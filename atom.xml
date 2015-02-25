@@ -4,7 +4,7 @@
   <title><![CDATA[Language Perils]]></title>
   <link href="http://ncreep.github.io/language_perils/atom.xml" rel="self"/>
   <link href="http://ncreep.github.io/language_perils/"/>
-  <updated>2015-02-25T04:56:22+02:00</updated>
+  <updated>2015-02-25T14:07:28+02:00</updated>
   <id>http://ncreep.github.io/language_perils/</id>
   <author>
     <name><![CDATA[Daniel Beskin]]></name>
@@ -455,7 +455,7 @@
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>lhs = { |x, y| bumps[x, y] }
-</span><span class='line'>rhs = { |x, y| 2 - guassian2d[0.01, x, 1, y, 1] }
+</span><span class='line'>rhs = { |x, y| 2 - gaussian2d[0.01, x, 1, y, 1] }
 </span><span class='line'>
 </span><span class='line'>xMin = 0
 </span><span class='line'>xMax = 2
