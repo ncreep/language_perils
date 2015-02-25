@@ -17,7 +17,7 @@ gaussians[a, x, y, peaks] :=
      res = res + gaussian2d[a, x, x0, y, y0]
   }
 
-  res
+  return res
 }
 
 /* A 2d surface with bumps at integer locations. */
