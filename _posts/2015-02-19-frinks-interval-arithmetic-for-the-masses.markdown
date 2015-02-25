@@ -307,7 +307,7 @@ I'm sure that most would agree that [WolframAlpha](http://www.wolframalpha.com/)
 
 ```
 lhs = { |x, y| bumps[x, y] }
-rhs = { |x, y| 2 - guassian2d[0.01, x, 1, y, 1] }
+rhs = { |x, y| 2 - gaussian2d[0.01, x, 1, y, 1] }
 
 xMin = 0
 xMax = 2
