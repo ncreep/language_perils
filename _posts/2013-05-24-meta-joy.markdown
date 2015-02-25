@@ -36,7 +36,8 @@ Armed with this function, we can treat quoted programs as lists of strings, and 
 
 Inspired by Lisp macros, I decided to implement a splicing scheme illustrated by this example:
 ```
-["two" "four" "five"] [[1 ~0 3] [~1 ~2] concat] splice-from-list # => [[1 "two" 3] ["four" "five"] concat]
+["two" "four" "five"] [[1 ~0 3] [~1 ~2] concat] splice-from-list 
+# => [[1 "two" 3] ["four" "five"] concat]
 ```
 
 The first list is the argument list and the second is the target program skeleton. Each `~X` symbol is treated as an index `X` in the argument list. Upon application of the `splice-from-list` function, each occurrence of the `~X` pattern is replaced by the corresponding item in the argument list.
@@ -62,7 +63,8 @@ splice-from-stack ==  swap [take-from-stack] dip splice-from-list;
 
 where `take-from-stack` takes a fixed number of items from the stack and places them in a list. Now we can write
 ```
-"two" "four" "five" [[1 ~0 3] [~1 ~2] concat] 3 splice-from-stack # => [[1 "two" 3] ["four" "five"] concat]
+"two" "four" "five" [[1 ~0 3] [~1 ~2] concat] 3 splice-from-stack 
+# => [[1 "two" 3] ["four" "five"] concat]
 ```
 Note how the `"two" "four" "five"` items are on the stack and not in a list. In most cases, it may feel redundant to write the number of items to take from the stack, it is evident from the maximal value of `X` in the different `~X` patterns, so we define
 ```
