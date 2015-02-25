@@ -232,10 +232,10 @@ All this power at my fingertips... Let's try to plot something more ambitious. F
 
 ```
 /* A Gaussian function in one dimension */
-guassian[a, x] := exp[-x^2 / a^2]
+gaussian[a, x] := exp[-x^2 / a^2]
 
-/* A 2d Guassian centered at (x0, y0) */
-guassian2d[a, x, x0, y, y0] := guassian[a, x - x0] guassian[a, y - y0]
+/* A 2d Gaussian centered at (x0, y0) */
+gaussian2d[a, x, x0, y, y0] := gaussian[a, x - x0] gaussian[a, y - y0]
 
 /* A sum of 2d Gaussians with peaks at different locations. 
  * `peaks` is a list of pairs designating the positions of the peaks. 
@@ -245,10 +245,10 @@ gaussians[a, x, y, peaks] :=
   res = 0
   for [x0, y0] = peaks
   {
-     res = res + guassian2d[a, x, x0, y, y0]
+     res = res + gaussian2d[a, x, x0, y, y0]
   }
 
-  res
+  return res
 }
 
 /* A 2d surface with bumps at integer locations. */
